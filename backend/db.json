@@ -1,0 +1,32 @@
+{
+  "stores": [
+    {
+      "id": 1,
+      "name": "후즈데어",
+      "area": "강남",
+      "address": "서울특별시 서초구 서초대로77길 27 지하 1층",
+      "lat": 37.500223,
+      "lng": 127.025402,
+      "restroom": "확인 필요",
+      "parking": "확인 필요"
+    }
+  ],
+  "themes": [
+    {
+      "id": 1,
+      "title": "아야코",
+      "storeId": 1,
+      "people": [2, 3, 4],
+      "genre": "드라마/스릴러",
+      "image": "images/ayako.jpg"
+    },
+    {
+      "id": 2,
+      "title": "투투 어드벤쳐",
+      "storeId": 1,
+      "people": [3, 4, 5],
+      "genre": "어드벤쳐",
+      "image": "images/tutu-adventure.jpg"
+    }
+  ]
+}
