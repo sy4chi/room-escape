@@ -31,6 +31,9 @@ async function loadData() {
     stores = await storeResponse.json();
     themes = await themeResponse.json();
 
+    console.log("stores:", stores);
+    console.log("themes:", themes);
+
     showAllStores(stores);
   } catch (error) {
     console.error(error);
@@ -38,10 +41,22 @@ async function loadData() {
     storeList.innerHTML = `
       <div class="store-item">
         <strong>데이터를 불러오지 못했습니다</strong>
-        <p>백엔드 서버가 켜져 있는지 확인해주세요.</p>
+        <p>Render 백엔드 주소를 확인해주세요.</p>
       </div>
     `;
   }
+}
+
+function normalizeText(text) {
+  return String(text)
+    .toLowerCase()
+    .replace(/\s+/g, "")
+    .replace(/[-_.()/]/g, "")
+    .replace(/플레이/g, "play")
+    .replace(/룸/g, "room")
+    .replace(/이스케이프/g, "escape")
+    .replace(/방탈출/g, "escape")
+    .trim();
 }
 
 function clearMarkers() {
@@ -49,8 +64,12 @@ function clearMarkers() {
   markers = [];
 }
 
+function getThemeStoreId(theme) {
+  return theme.storeId || theme.store_id;
+}
+
 function getStoreThemes(storeId) {
-  return themes.filter((theme) => theme.storeId === storeId);
+  return themes.filter((theme) => getThemeStoreId(theme) === storeId);
 }
 
 function getThemePeople(theme) {
@@ -78,9 +97,9 @@ function openStoreModal(store) {
       <p class="modal-address">${store.address}</p>
 
       <div class="modal-info">
-        <p><strong>지역</strong> ${store.area}</p>
-        <p><strong>화장실</strong> ${store.restroom}</p>
-        <p><strong>주차</strong> ${store.parking}</p>
+        <p><strong>지역</strong> ${store.area || "확인 필요"}</p>
+        <p><strong>화장실</strong> ${store.restroom || "확인 필요"}</p>
+        <p><strong>주차</strong> ${store.parking || "확인 필요"}</p>
       </div>
 
       <div class="modal-theme-list">
@@ -88,23 +107,23 @@ function openStoreModal(store) {
 
         ${
           storeThemes.length > 0
-            ? storeThemes
-                .map((theme) => {
-                  const people = getThemePeople(theme);
+            ? storeThemes.map((theme) => {
+                const people = getThemePeople(theme);
 
-                  return `
-                    <div class="modal-theme-card">
-                      <img src="${theme.image}" alt="${theme.title}" />
+                return `
+                  <div class="modal-theme-card">
+                    <img src="${theme.image || ""}" alt="${theme.title}" />
 
-                      <div>
-                        <strong>${theme.title}</strong>
-                        <p>${theme.genre}</p>
-                        <p>${people.join(", ")}명 추천</p>
-                      </div>
+                    <div>
+                      <strong>${theme.title}</strong>
+                      <p>${theme.genre || "장르 확인 필요"}</p>
+                      <p>${people.join(", ")}명 추천</p>
+                      <p>${theme.play_time || "플레이타임 확인 필요"}</p>
+                      <p>${theme.price || "가격 확인 필요"}</p>
                     </div>
-                  `;
-                })
-                .join("")
+                  </div>
+                `;
+              }).join("")
             : "<p>등록된 테마가 없습니다.</p>"
         }
       </div>
@@ -123,12 +142,17 @@ function openStoreModal(store) {
     }
   });
 
-  map.setView([store.lat, store.lng], 16);
+  map.setView([Number(store.lat), Number(store.lng)], 16);
 }
 
 function openThemeModal(theme) {
-  const store = stores.find((store) => store.id === theme.storeId);
+  const store = stores.find((store) => store.id === getThemeStoreId(theme));
   const people = getThemePeople(theme);
+
+  if (!store) {
+    alert("매장 정보를 찾을 수 없습니다.");
+    return;
+  }
 
   const modal = document.createElement("div");
   modal.className = "store-modal";
@@ -137,14 +161,14 @@ function openThemeModal(theme) {
     <div class="store-modal-box">
       <button class="store-modal-close">×</button>
 
-      <img class="theme-detail-image" src="${theme.image}" alt="${theme.title}" />
+      <img class="theme-detail-image" src="${theme.image || ""}" alt="${theme.title}" />
 
       <h2>${theme.title}</h2>
 
       <div class="modal-info">
-        <p><strong>장르</strong> ${theme.genre}</p>
+        <p><strong>장르</strong> ${theme.genre || "확인 필요"}</p>
         <p><strong>추천 인원</strong> ${people.join(", ")}명</p>
-        <p><strong>플레이타임</strong> ${theme.play_time || "60분"}</p>
+        <p><strong>플레이타임</strong> ${theme.play_time || "확인 필요"}</p>
         <p><strong>가격</strong> ${theme.price || "확인 필요"}</p>
         <p><strong>매장</strong> ${store.name}</p>
       </div>
@@ -168,13 +192,16 @@ function openThemeModal(theme) {
   });
 
   setTimeout(() => {
-    const modalMap = L.map("themeModalMap").setView([store.lat, store.lng], 16);
+    const modalMap = L.map("themeModalMap").setView(
+      [Number(store.lat), Number(store.lng)],
+      16
+    );
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "&copy; OpenStreetMap contributors"
     }).addTo(modalMap);
 
-    L.marker([store.lat, store.lng])
+    L.marker([Number(store.lat), Number(store.lng)])
       .addTo(modalMap)
       .bindPopup(store.name)
       .openPopup();
@@ -217,7 +244,7 @@ function renderMarkers(filteredStores) {
   clearMarkers();
 
   filteredStores.forEach((store) => {
-    const marker = L.marker([store.lat, store.lng])
+    const marker = L.marker([Number(store.lat), Number(store.lng)])
       .addTo(map)
       .bindPopup(`
         <strong>${store.name}</strong><br />
@@ -228,12 +255,15 @@ function renderMarkers(filteredStores) {
   });
 
   if (filteredStores.length === 1) {
-    map.setView([filteredStores[0].lat, filteredStores[0].lng], 16);
+    map.setView(
+      [Number(filteredStores[0].lat), Number(filteredStores[0].lng)],
+      16
+    );
   }
 
   if (filteredStores.length > 1) {
     const bounds = L.latLngBounds(
-      filteredStores.map((store) => [store.lat, store.lng])
+      filteredStores.map((store) => [Number(store.lat), Number(store.lng)])
     );
 
     map.fitBounds(bounds, {
@@ -248,7 +278,7 @@ function showAllStores(filteredStores = stores) {
 }
 
 function searchStores() {
-  const keyword = searchBox.value.trim().toLowerCase();
+  const keyword = normalizeText(searchBox.value);
 
   if (!keyword) {
     showAllStores(stores);
@@ -256,11 +286,14 @@ function searchStores() {
   }
 
   const filteredStores = stores.filter((store) => {
-    return (
-      store.name.toLowerCase().includes(keyword) ||
-      store.area.toLowerCase().includes(keyword) ||
-      store.address.toLowerCase().includes(keyword)
-    );
+    const searchableText = normalizeText(`
+      ${store.name || ""}
+      ${store.aliases || ""}
+      ${store.area || ""}
+      ${store.address || ""}
+    `);
+
+    return searchableText.includes(keyword);
   });
 
   showAllStores(filteredStores);
@@ -277,7 +310,12 @@ function recommendTheme() {
   }
 
   const matchedThemes = themes.filter((theme) => {
-    const store = stores.find((store) => store.id === theme.storeId);
+    const store = stores.find((store) => store.id === getThemeStoreId(theme));
+
+    if (!store) {
+      return false;
+    }
+
     const people = getThemePeople(theme);
 
     const areaMatched = selectedArea
@@ -285,7 +323,7 @@ function recommendTheme() {
       : true;
 
     const genreMatched = selectedGenre
-      ? theme.genre.includes(selectedGenre)
+      ? String(theme.genre || "").includes(selectedGenre)
       : true;
 
     return (
@@ -306,7 +344,7 @@ function recommendTheme() {
   resultBox.innerHTML = "";
 
   matchedThemes.forEach((theme) => {
-    const store = stores.find((store) => store.id === theme.storeId);
+    const store = stores.find((store) => store.id === getThemeStoreId(theme));
 
     const item = document.createElement("div");
     item.className = "recommend-result-item";
