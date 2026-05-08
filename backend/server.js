@@ -11,15 +11,20 @@ app.use(express.json());
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 
-if (!supabaseUrl || !supabaseKey) {
-  console.error("SUPABASE_URL 또는 SUPABASE_KEY가 없습니다.");
-}
-
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 app.get("/", (req, res) => {
   res.send("방탈출 지도 백엔드 서버 실행 중");
 });
+
+function parsePeople(people) {
+  if (!people) return [];
+
+  return String(people)
+    .split(",")
+    .map((person) => Number(String(person).trim()))
+    .filter((person) => !Number.isNaN(person));
+}
 
 app.get("/stores", async (req, res) => {
   const { data, error } = await supabase
@@ -28,11 +33,12 @@ app.get("/stores", async (req, res) => {
     .order("id", { ascending: true });
 
   if (error) {
-    console.error(error);
-    return res.status(500).json({ message: error.message });
+    return res.status(500).json({
+      message: error.message
+    });
   }
 
-  res.json(data);
+  res.json(data || []);
 });
 
 app.get("/themes", async (req, res) => {
@@ -42,18 +48,16 @@ app.get("/themes", async (req, res) => {
     .order("id", { ascending: true });
 
   if (error) {
-    console.error(error);
-    return res.status(500).json({ message: error.message });
+    return res.status(500).json({
+      message: error.message
+    });
   }
 
-  const parsedThemes = data.map((theme) => {
+  const parsedThemes = (data || []).map((theme) => {
     return {
       ...theme,
       storeId: theme.store_id,
-      people: String(theme.people)
-        .split(",")
-        .map((person) => Number(person.trim()))
-        .filter((person) => !Number.isNaN(person))
+      people: parsePeople(theme.people)
     };
   });
 
@@ -83,8 +87,9 @@ app.post("/requests", async (req, res) => {
     .select();
 
   if (error) {
-    console.error(error);
-    return res.status(500).json({ message: error.message });
+    return res.status(500).json({
+      message: error.message
+    });
   }
 
   res.status(201).json(data[0]);
