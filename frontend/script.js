@@ -144,6 +144,7 @@ function openThemeModal(theme) {
       <div class="modal-info">
         <p><strong>장르</strong> ${theme.genre}</p>
         <p><strong>추천 인원</strong> ${people.join(", ")}명</p>
+        <p><strong>플레이타임</strong> ${theme.play_time || "60분"}</p>
         <p><strong>가격</strong> ${theme.price || "확인 필요"}</p>
         <p><strong>매장</strong> ${store.name}</p>
       </div>
