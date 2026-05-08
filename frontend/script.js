@@ -271,8 +271,8 @@ function recommendTheme() {
   const selectedPeople = Number(peopleSelect.value);
   const selectedGenre = genreSelect.value;
 
-  if (!selectedPeople || !selectedGenre) {
-    resultBox.innerHTML = "인원과 장르를 선택해주세요.";
+  if (!selectedPeople) {
+    resultBox.innerHTML = "인원을 선택해주세요.";
     return;
   }
 
@@ -280,12 +280,18 @@ function recommendTheme() {
     const store = stores.find((store) => store.id === theme.storeId);
     const people = getThemePeople(theme);
 
-    const areaMatched = selectedArea ? store.area === selectedArea : true;
+    const areaMatched = selectedArea
+      ? store.area === selectedArea
+      : true;
+
+    const genreMatched = selectedGenre
+      ? theme.genre.includes(selectedGenre)
+      : true;
 
     return (
       areaMatched &&
       people.includes(selectedPeople) &&
-      theme.genre.includes(selectedGenre)
+      genreMatched
     );
   });
 
