@@ -23,6 +23,23 @@ searchBox.placeholder = "매장명이나 지역을 검색해보세요";
 storeList.parentElement.insertBefore(searchBox, storeList);
 
 async function loadData() {
+  async function loadData() {
+  try {
+    const storeResponse = await fetch(`${API_URL}/stores`);
+    const themeResponse = await fetch(`${API_URL}/themes`);
+
+    stores = await storeResponse.json();
+    themes = await themeResponse.json();
+
+    console.log("stores:", stores);
+    console.log("themes:", themes);
+
+    showAllStores(stores);
+  } catch (error) {
+    console.error("데이터 로딩 실패:", error);
+    alert("데이터를 불러오지 못했습니다. Console을 확인해주세요.");
+  }
+}
   try {
     const storeResponse = await fetch(`${API_URL}/stores`);
     const themeResponse = await fetch(`${API_URL}/themes`);
