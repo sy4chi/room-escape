@@ -20,7 +20,6 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 const searchBox = document.createElement("input");
 searchBox.className = "store-search";
 searchBox.placeholder = "매장명이나 지역을 검색해보세요";
-
 storeList.parentElement.insertBefore(searchBox, storeList);
 
 async function loadData() {
@@ -41,7 +40,7 @@ async function loadData() {
     storeList.innerHTML = `
       <div class="store-item">
         <strong>데이터를 불러오지 못했습니다</strong>
-        <p>Render 백엔드 주소를 확인해주세요.</p>
+        <p>백엔드 서버 연결을 확인해주세요.</p>
       </div>
     `;
   }
@@ -68,10 +67,6 @@ function getThemeStoreId(theme) {
   return theme.storeId || theme.store_id;
 }
 
-function getStoreThemes(storeId) {
-  return themes.filter((theme) => getThemeStoreId(theme) === storeId);
-}
-
 function getThemePeople(theme) {
   if (Array.isArray(theme.people)) {
     return theme.people;
@@ -81,6 +76,12 @@ function getThemePeople(theme) {
     .split(",")
     .map((person) => Number(person.trim()))
     .filter((person) => !Number.isNaN(person));
+}
+
+function getStoreThemes(storeId) {
+  return themes.filter((theme) => {
+    return Number(getThemeStoreId(theme)) === Number(storeId);
+  });
 }
 
 function openStoreModal(store) {
@@ -146,13 +147,16 @@ function openStoreModal(store) {
 }
 
 function openThemeModal(theme) {
-  const store = stores.find((store) => store.id === getThemeStoreId(theme));
-  const people = getThemePeople(theme);
+  const store = stores.find((store) => {
+    return Number(store.id) === Number(getThemeStoreId(theme));
+  });
 
   if (!store) {
     alert("매장 정보를 찾을 수 없습니다.");
     return;
   }
+
+  const people = getThemePeople(theme);
 
   const modal = document.createElement("div");
   modal.className = "store-modal";
@@ -263,7 +267,10 @@ function renderMarkers(filteredStores) {
 
   if (filteredStores.length > 1) {
     const bounds = L.latLngBounds(
-      filteredStores.map((store) => [Number(store.lat), Number(store.lng)])
+      filteredStores.map((store) => [
+        Number(store.lat),
+        Number(store.lng)
+      ])
     );
 
     map.fitBounds(bounds, {
@@ -310,7 +317,9 @@ function recommendTheme() {
   }
 
   const matchedThemes = themes.filter((theme) => {
-    const store = stores.find((store) => store.id === getThemeStoreId(theme));
+    const store = stores.find((store) => {
+      return Number(store.id) === Number(getThemeStoreId(theme));
+    });
 
     if (!store) {
       return false;
@@ -344,7 +353,9 @@ function recommendTheme() {
   resultBox.innerHTML = "";
 
   matchedThemes.forEach((theme) => {
-    const store = stores.find((store) => store.id === getThemeStoreId(theme));
+    const store = stores.find((store) => {
+      return Number(store.id) === Number(getThemeStoreId(theme));
+    });
 
     const item = document.createElement("div");
     item.className = "recommend-result-item";
