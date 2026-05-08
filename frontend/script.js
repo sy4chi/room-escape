@@ -34,6 +34,7 @@ async function loadData() {
     showAllStores(stores);
   } catch (error) {
     console.error(error);
+
     storeList.innerHTML = `
       <div class="store-item">
         <strong>데이터를 불러오지 못했습니다</strong>
@@ -50,6 +51,17 @@ function clearMarkers() {
 
 function getStoreThemes(storeId) {
   return themes.filter((theme) => theme.storeId === storeId);
+}
+
+function getThemePeople(theme) {
+  if (Array.isArray(theme.people)) {
+    return theme.people;
+  }
+
+  return String(theme.people)
+    .split(",")
+    .map((person) => Number(person.trim()))
+    .filter((person) => !Number.isNaN(person));
 }
 
 function openStoreModal(store) {
@@ -78,6 +90,8 @@ function openStoreModal(store) {
           storeThemes.length > 0
             ? storeThemes
                 .map((theme) => {
+                  const people = getThemePeople(theme);
+
                   return `
                     <div class="modal-theme-card">
                       <img src="${theme.image}" alt="${theme.title}" />
@@ -85,7 +99,7 @@ function openStoreModal(store) {
                       <div>
                         <strong>${theme.title}</strong>
                         <p>${theme.genre}</p>
-                        <p>${theme.people.join(", ")}명 추천</p>
+                        <p>${people.join(", ")}명 추천</p>
                       </div>
                     </div>
                   `;
@@ -110,6 +124,62 @@ function openStoreModal(store) {
   });
 
   map.setView([store.lat, store.lng], 16);
+}
+
+function openThemeModal(theme) {
+  const store = stores.find((store) => store.id === theme.storeId);
+  const people = getThemePeople(theme);
+
+  const modal = document.createElement("div");
+  modal.className = "store-modal";
+
+  modal.innerHTML = `
+    <div class="store-modal-box">
+      <button class="store-modal-close">×</button>
+
+      <img class="theme-detail-image" src="${theme.image}" alt="${theme.title}" />
+
+      <h2>${theme.title}</h2>
+
+      <div class="modal-info">
+        <p><strong>장르</strong> ${theme.genre}</p>
+        <p><strong>추천 인원</strong> ${people.join(", ")}명</p>
+        <p><strong>가격</strong> ${theme.price || "확인 필요"}</p>
+        <p><strong>매장</strong> ${store.name}</p>
+      </div>
+
+      <p class="modal-address">${store.address}</p>
+
+      <div id="themeModalMap"></div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  modal.querySelector(".store-modal-close").addEventListener("click", () => {
+    modal.remove();
+  });
+
+  modal.addEventListener("click", (event) => {
+    if (event.target === modal) {
+      modal.remove();
+    }
+  });
+
+  setTimeout(() => {
+    const modalMap = L.map("themeModalMap").setView([store.lat, store.lng], 16);
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "&copy; OpenStreetMap contributors"
+    }).addTo(modalMap);
+
+    L.marker([store.lat, store.lng])
+      .addTo(modalMap)
+      .bindPopup(store.name)
+      .openPopup();
+
+    modalMap.invalidateSize();
+  }, 100);
 }
 
 function renderStores(filteredStores) {
@@ -207,12 +277,13 @@ function recommendTheme() {
 
   const matchedThemes = themes.filter((theme) => {
     const store = stores.find((store) => store.id === theme.storeId);
+    const people = getThemePeople(theme);
 
     const areaMatched = selectedArea ? store.area === selectedArea : true;
 
     return (
       areaMatched &&
-      theme.people.includes(selectedPeople) &&
+      people.includes(selectedPeople) &&
       theme.genre.includes(selectedGenre)
     );
   });
@@ -225,16 +296,25 @@ function recommendTheme() {
     return;
   }
 
-  resultBox.innerHTML = matchedThemes
-    .map((theme) => {
-      const store = stores.find((store) => store.id === theme.storeId);
+  resultBox.innerHTML = "";
 
-      return `
-        <strong>${theme.title}</strong><br />
-        ${store.name} · ${store.area} · ${theme.genre}
-      `;
-    })
-    .join("<br /><br />");
+  matchedThemes.forEach((theme) => {
+    const store = stores.find((store) => store.id === theme.storeId);
+
+    const item = document.createElement("div");
+    item.className = "recommend-result-item";
+
+    item.innerHTML = `
+      <strong>${theme.title}</strong>
+      <p>${store.name} · ${store.area} · ${theme.genre}</p>
+    `;
+
+    item.addEventListener("click", () => {
+      openThemeModal(theme);
+    });
+
+    resultBox.appendChild(item);
+  });
 }
 
 searchBox.addEventListener("input", searchStores);

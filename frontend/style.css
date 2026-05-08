@@ -118,7 +118,8 @@ select {
 }
 
 .recommend-btn:hover,
-.store-item:hover {
+.store-item:hover,
+.recommend-result-item:hover {
   transform: translateY(-4px);
 }
 
@@ -245,6 +246,27 @@ select {
   color: #e26c9f;
 }
 
+.recommend-result-item {
+  padding: 14px;
+  margin-bottom: 12px;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 8px 20px rgba(180, 190, 220, 0.14);
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.recommend-result-item strong {
+  display: block;
+  margin-bottom: 6px;
+  color: #333;
+}
+
+.recommend-result-item p {
+  color: #666;
+  font-size: 14px;
+}
+
 .store-modal {
   position: fixed;
   top: 0;
@@ -261,8 +283,8 @@ select {
 
 .store-modal-box {
   position: relative;
-  width: 460px;
-  max-height: 82vh;
+  width: 500px;
+  max-height: 84vh;
   overflow-y: auto;
   padding: 34px;
   border-radius: 30px;
@@ -308,6 +330,16 @@ select {
   color: #555;
 }
 
+.modal-info p:last-child {
+  margin-bottom: 0;
+}
+
+.modal-info strong {
+  display: inline-block;
+  width: 76px;
+  color: #333;
+}
+
 .modal-theme-list h3 {
   margin-bottom: 14px;
   font-size: 18px;
@@ -337,6 +369,22 @@ select {
   margin-top: 5px;
   font-size: 14px;
   color: #666;
+}
+
+.theme-detail-image {
+  width: 100%;
+  height: 210px;
+  object-fit: cover;
+  border-radius: 20px;
+  margin-bottom: 20px;
+}
+
+#themeModalMap {
+  width: 100%;
+  height: 230px;
+  margin-top: 18px;
+  border-radius: 20px;
+  overflow: hidden;
 }
 
 @media (max-width: 980px) {
