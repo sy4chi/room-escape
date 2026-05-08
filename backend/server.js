@@ -1,87 +1,139 @@
 const express = require("express");
 const cors = require("cors");
-const fs = require("fs");
-const path = require("path");
+const dotenv = require("dotenv");
+const { createClient } = require("@supabase/supabase-js");
+
+dotenv.config();
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
 
-const dbPath = path.join(__dirname, "db.json");
-
-function readDB() {
-  const data = fs.readFileSync(dbPath, "utf-8");
-  return JSON.parse(data);
-}
-
-function writeDB(data) {
-  fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
-}
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_KEY
+);
 
 app.get("/", (req, res) => {
   res.send("방탈출 지도 백엔드 서버 실행 중");
 });
 
-app.get("/stores", (req, res) => {
-  const db = readDB();
-  res.json(db.stores);
+app.get("/stores", async (req, res) => {
+  const { data, error } = await supabase
+    .from("stores")
+    .select("*")
+    .order("id", { ascending: true });
+
+  if (error) {
+    return res.status(500).json({
+      message: error.message
+    });
+  }
+
+  res.json(data);
 });
 
-app.get("/themes", (req, res) => {
-  const db = readDB();
-  res.json(db.themes);
+app.get("/themes", async (req, res) => {
+  const { data, error } = await supabase
+    .from("themes")
+    .select("*")
+    .order("id", { ascending: true });
+
+  if (error) {
+    return res.status(500).json({
+      message: error.message
+    });
+  }
+
+  const parsedThemes = data.map((theme) => {
+    return {
+      ...theme,
+      storeId: theme.store_id,
+      people: String(theme.people)
+        .split(",")
+        .map((person) => Number(person.trim()))
+        .filter((person) => !Number.isNaN(person))
+    };
+  });
+
+  res.json(parsedThemes);
 });
 
-app.get("/stores/:id", (req, res) => {
-  const db = readDB();
+app.get("/stores/:id", async (req, res) => {
   const storeId = Number(req.params.id);
 
-  const store = db.stores.find((store) => store.id === storeId);
+  const { data: store, error: storeError } = await supabase
+    .from("stores")
+    .select("*")
+    .eq("id", storeId)
+    .single();
 
-  if (!store) {
+  if (storeError) {
     return res.status(404).json({
       message: "매장을 찾을 수 없습니다."
     });
   }
 
-  const storeThemes = db.themes.filter(
-    (theme) => theme.storeId === storeId
-  );
+  const { data: themes, error: themeError } = await supabase
+    .from("themes")
+    .select("*")
+    .eq("store_id", storeId)
+    .order("id", { ascending: true });
+
+  if (themeError) {
+    return res.status(500).json({
+      message: themeError.message
+    });
+  }
+
+  const parsedThemes = themes.map((theme) => {
+    return {
+      ...theme,
+      storeId: theme.store_id,
+      people: String(theme.people)
+        .split(",")
+        .map((person) => Number(person.trim()))
+        .filter((person) => !Number.isNaN(person))
+    };
+  });
 
   res.json({
     ...store,
-    themes: storeThemes
+    themes: parsedThemes
   });
 });
 
-app.post("/stores", (req, res) => {
-  const db = readDB();
+app.post("/requests", async (req, res) => {
+  const { type, store_name, theme_name, content } = req.body;
 
-  const newStore = {
-    id: Date.now(),
-    ...req.body
-  };
+  if (!type || !content) {
+    return res.status(400).json({
+      message: "요청 종류와 내용은 필수입니다."
+    });
+  }
 
-  db.stores.push(newStore);
-  writeDB(db);
+  const { data, error } = await supabase
+    .from("requests")
+    .insert([
+      {
+        type,
+        store_name,
+        theme_name,
+        content,
+        status: "대기"
+      }
+    ])
+    .select();
 
-  res.status(201).json(newStore);
-});
+  if (error) {
+    return res.status(500).json({
+      message: error.message
+    });
+  }
 
-app.post("/themes", (req, res) => {
-  const db = readDB();
-
-  const newTheme = {
-    id: Date.now(),
-    ...req.body
-  };
-
-  db.themes.push(newTheme);
-  writeDB(db);
-
-  res.status(201).json(newTheme);
+  res.status(201).json(data[0]);
 });
 
 app.listen(PORT, () => {
