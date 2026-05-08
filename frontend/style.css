@@ -3,6 +3,11 @@
   padding: 0;
   box-sizing: border-box;
 }
+.logo img {
+  width: 180px;
+  height: auto;
+  display: block;
+}
 
 body {
   font-family: "Pretendard", sans-serif;
