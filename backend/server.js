@@ -44,8 +44,7 @@ app.get("/stores", async (req, res) => {
 app.get("/themes", async (req, res) => {
   const { data, error } = await supabase
     .from("themes")
-    .select("*")
-    .order("id", { ascending: true });
+    .select("*");
 
   if (error) {
     return res.status(500).json({
@@ -57,7 +56,10 @@ app.get("/themes", async (req, res) => {
     return {
       ...theme,
       storeId: theme.store_id,
-      people: parsePeople(theme.people)
+      people: String(theme.people || "")
+        .split(",")
+        .map((person) => Number(person.trim()))
+        .filter((person) => !Number.isNaN(person))
     };
   });
 
