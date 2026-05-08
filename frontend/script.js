@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:3000";
+const API_URL = "https://room-escape.onrender.com";
 
 const locationSelect = document.querySelector("#location");
 const peopleSelect = document.querySelector("#people");
