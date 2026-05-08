@@ -3,9 +3,12 @@
   padding: 0;
   box-sizing: border-box;
 }
-.logo img {
-  width: 180px;
-  height: auto;
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo svg {
   display: block;
 }
 

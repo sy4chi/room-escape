@@ -14,7 +14,60 @@
 <body>
   <header class="header">
     <div class="logo">
-  <img src="images/logo.svg" alt="방탈출 지도 로고">
+  <svg
+    width="220"
+    height="80"
+    viewBox="0 0 320 120"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <defs>
+      <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#FFB7D5" />
+        <stop offset="100%" stop-color="#8EC5FF" />
+      </linearGradient>
+    </defs>
+
+    <!-- 지도 -->
+    <path
+      d="M40 30L120 20L200 40L280 30V90L200 100L120 80L40 90V30Z"
+      fill="white"
+      stroke="url(#grad1)"
+      stroke-width="5"
+      stroke-linejoin="round"
+    />
+
+    <!-- 경로 -->
+    <path
+      d="M80 55C110 40 150 80 190 60C220 45 240 65 250 75"
+      stroke="url(#grad1)"
+      stroke-width="4"
+      stroke-dasharray="8 8"
+      fill="none"
+      stroke-linecap="round"
+    />
+
+    <!-- 핀 -->
+    <path
+      d="M160 8C147 8 136 19 136 32C136 50 160 66 160 66C160 66 184 50 184 32C184 19 173 8 160 8Z"
+      fill="#FFB7D5"
+    />
+
+    <circle cx="160" cy="32" r="8" fill="#8EC5FF" />
+
+    <!-- 텍스트 -->
+    <text
+      x="50%"
+      y="115"
+      text-anchor="middle"
+      font-size="28"
+      font-family="Pretendard, sans-serif"
+      fill="url(#grad1)"
+      font-weight="700"
+    >
+      방탈출지도
+    </text>
+  </svg>
 </div>
   </header>
 
