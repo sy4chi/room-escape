@@ -139,3 +139,22 @@ app.post("/requests", async (req, res) => {
 app.listen(PORT, () => {
   console.log(`서버 실행: http://localhost:${PORT}`);
 });
+app.get("/stores", async (req, res) => {
+  console.log("GET /stores 요청 들어옴");
+
+  const { data, error } = await supabase
+    .from("stores")
+    .select("*")
+    .order("id", { ascending: true });
+
+  console.log("stores data:", data);
+  console.log("stores error:", error);
+
+  if (error) {
+    return res.status(500).json({
+      message: error.message
+    });
+  }
+
+  res.json(data);
+});
