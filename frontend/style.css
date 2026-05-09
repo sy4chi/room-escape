@@ -494,4 +494,30 @@ select {
   border-radius: 20px;
   overflow: hidden;
 }
+.reservation-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+
+  margin-top: 18px;
+  padding: 14px;
+
+  border-radius: 16px;
+
+  background: #a8c7ff;
+
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+
+  transition: 0.2s ease;
+}
+
+.reservation-button:hover {
+  background: #8fb6ff;
+  transform: translateY(-2px);
+}
 }

@@ -192,6 +192,19 @@ function openThemeModal(theme) {
         <p><strong>플레이타임</strong> ${theme.play_time || "확인 필요"}</p>
         <p><strong>가격</strong> ${theme.price || "확인 필요"}</p>
         <p><strong>매장</strong> ${store.name}</p>
+        ${
+  theme.reservation
+    ? `
+      <a
+        href="${theme.reservation}"
+        target="_blank"
+        class="reservation-button"
+      >
+        예약 사이트 바로가기
+      </a>
+    `
+    : ""
+}
       </div>
 
       <p class="modal-address">${store.address}</p>
