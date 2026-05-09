@@ -11,7 +11,7 @@ let stores = [];
 let themes = [];
 let markers = [];
 
-const map = L.map("map").setView([37.500223, 127.025402], 15);
+const map = L.map("map").setView([37.5665, 126.9780], 11);
 
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   attribution: "&copy; OpenStreetMap contributors"
@@ -295,18 +295,18 @@ function renderMarkers(filteredStores) {
     );
   }
 
-  if (filteredStores.length > 1) {
-    const bounds = L.latLngBounds(
-      filteredStores.map((store) => [
-        Number(store.lat),
-        Number(store.lng)
-      ])
-    );
+  // if (filteredStores.length > 1) {
+  //   const bounds = L.latLngBounds(
+  //     filteredStores.map((store) => [
+  //       Number(store.lat),
+  //       Number(store.lng)
+  //     ])
+  //   );
 
-    map.fitBounds(bounds, {
-      padding: [40, 40]
-    });
-  }
+  //   map.fitBounds(bounds, {
+  //     padding: [40, 40]
+  //   });
+  // }
 }
 
 function showAllStores(filteredStores = stores) {
