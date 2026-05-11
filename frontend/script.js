@@ -231,6 +231,8 @@ function renderMarkers(filteredStores) {
           font-size:13px;
           font-weight:900;
           text-decoration:none;
+          outline:none;
+          border:none;
           box-shadow:0 10px 22px rgba(180,190,220,0.2);
         "
       >

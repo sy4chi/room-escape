@@ -577,4 +577,28 @@ select {
 .kakao-info-window-wrapper * {
   border: none !important;
 }
+.kakao-info-window-wrapper,
+.kakao-info-window-wrapper * {
+  border: none !important;
+  outline: none !important;
+}
+
+.kakao-direction-btn,
+.kakao-direction-btn:focus,
+.kakao-direction-btn:active,
+.kakao-direction-btn:hover,
+.kakao-modal-map-btn,
+.kakao-modal-map-btn:focus,
+.kakao-modal-map-btn:active,
+.reservation-button,
+.reservation-button:focus,
+.reservation-button:active {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.kakao-info-window-wrapper a {
+  -webkit-tap-highlight-color: transparent;
+}
 }
