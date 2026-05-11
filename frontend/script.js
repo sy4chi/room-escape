@@ -1,4 +1,5 @@
 const API_URL = "https://room-escape.onrender.com";
+const API_URL = "https://www.bangtalmap.site/";
 
 const locationSelect = document.querySelector("#location");
 const peopleSelect = document.querySelector("#people");
@@ -60,7 +61,6 @@ async function loadData() {
     showAllStores(stores);
   } catch (error) {
     console.error(error);
-
     storeList.innerHTML = `
       <div class="store-item">
         <strong>데이터를 불러오지 못했습니다</strong>
@@ -144,6 +144,10 @@ function clearMarkers() {
   infoWindows = [];
 }
 
+window.closeKakaoInfoWindow = function () {
+  infoWindows.forEach((infoWindow) => infoWindow.close());
+};
+
 function renderMarkers(filteredStores) {
   if (!map) return;
 
@@ -170,25 +174,13 @@ function renderMarkers(filteredStores) {
     const infoWindow = new kakao.maps.InfoWindow({
       content: `
         <div class="map-info-card">
-          <button class="map-info-close" onclick="window.closeKakaoInfoWindow()">
-            ×
-          </button>
+          <button class="map-info-close" onclick="window.closeKakaoInfoWindow()">×</button>
 
           <div class="map-info-badge">방탈출 매장</div>
+          <div class="map-info-title">${store.name}</div>
+          <div class="map-info-address">${store.address}</div>
 
-          <div class="map-info-title">
-            ${store.name}
-          </div>
-
-          <div class="map-info-address">
-            ${store.address}
-          </div>
-
-          <a
-            href="${kakaoMapUrl}"
-            target="_blank"
-            class="map-info-button"
-          >
+          <a href="${kakaoMapUrl}" target="_blank" class="map-info-button">
             카카오맵 길찾기
           </a>
         </div>
@@ -197,12 +189,8 @@ function renderMarkers(filteredStores) {
 
     infoWindows.push(infoWindow);
 
-    window.closeKakaoInfoWindow = function () {
-      infoWindows.forEach((infoWindow) => infoWindow.close());
-    };
     kakao.maps.event.addListener(marker, "click", () => {
       infoWindows.forEach((window) => window.close());
-
       infoWindow.open(map, marker);
 
       map.setCenter(position);
@@ -271,6 +259,37 @@ function openStoreModal(store) {
   });
 }
 
+function openImageViewer(imageUrl) {
+  if (!imageUrl) return;
+
+  const viewer = document.createElement("div");
+  viewer.className = "image-modal-overlay";
+
+  viewer.innerHTML = `
+    <div class="image-modal-large-box">
+      <button class="image-modal-close">×</button>
+
+      <img
+        src="${imageUrl}"
+        alt="확대 이미지"
+        class="image-modal-large-img"
+      />
+    </div>
+  `;
+
+  document.body.appendChild(viewer);
+
+  viewer.querySelector(".image-modal-close").addEventListener("click", () => {
+    viewer.remove();
+  });
+
+  viewer.addEventListener("click", (event) => {
+    if (event.target === viewer) {
+      viewer.remove();
+    }
+  });
+}
+
 function openThemeModal(theme) {
   const store = stores.find((store) => {
     return Number(store.id) === Number(getThemeStoreId(theme));
@@ -294,7 +313,11 @@ function openThemeModal(theme) {
     <div class="store-modal-box">
       <button class="store-modal-close">×</button>
 
-      <img class="theme-detail-image" src="${theme.image || ""}" alt="${theme.title}" />
+      <img
+        class="theme-detail-image clickable-theme-image"
+        src="${theme.image || ""}"
+        alt="${theme.title}"
+      />
 
       <h2>${theme.title}</h2>
 
@@ -329,13 +352,14 @@ function openThemeModal(theme) {
   `;
 
   document.body.appendChild(modal);
+
   const detailImage = modal.querySelector(".clickable-theme-image");
 
-if (detailImage) {
-  detailImage.addEventListener("click", () => {
-    openImageViewer(theme.image);
-  });
-}
+  if (detailImage) {
+    detailImage.addEventListener("click", () => {
+      openImageViewer(theme.image);
+    });
+  }
 
   modal.querySelector(".store-modal-close").addEventListener("click", () => {
     modal.remove();
@@ -501,36 +525,6 @@ function recommendTheme() {
 
     resultBox.appendChild(item);
   });
-  function openImageViewer(imageUrl) {
-  if (!imageUrl) return;
-
-  const viewer = document.createElement("div");
-  viewer.className = "image-modal-overlay";
-
-  viewer.innerHTML = `
-    <div class="image-modal-large-box">
-      <button class="image-modal-close">×</button>
-
-      <img
-        src="${imageUrl}"
-        alt="확대 이미지"
-        class="image-modal-large-img"
-      />
-    </div>
-  `;
-
-  document.body.appendChild(viewer);
-
-  viewer.querySelector(".image-modal-close").addEventListener("click", () => {
-    viewer.remove();
-  });
-
-  viewer.addEventListener("click", (event) => {
-    if (event.target === viewer) {
-      viewer.remove();
-    }
-  });
-}
 }
 
 searchBox.addEventListener("input", searchStores);

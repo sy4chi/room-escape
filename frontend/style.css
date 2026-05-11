@@ -350,6 +350,10 @@ select {
   margin-bottom: 20px;
 }
 
+.clickable-theme-image {
+  cursor: zoom-in;
+}
+
 .theme-action-buttons {
   display: flex;
   flex-direction: column;
@@ -397,7 +401,6 @@ select {
   box-shadow: 0 14px 34px rgba(180, 190, 220, 0.18);
 }
 
-/* 카카오맵 정보창 */
 .map-info-card {
   position: relative;
   width: 260px;
@@ -417,28 +420,16 @@ select {
   position: absolute;
   top: 12px;
   right: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   width: 30px;
   height: 30px;
   border: none;
   outline: none;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.82);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 6px 16px rgba(180, 190, 220, 0.18);
   color: #a7a2b2;
   font-size: 18px;
   font-weight: 700;
   cursor: pointer;
-  transition: 0.18s;
-}
-
-.map-info-close:hover {
-  transform: scale(1.08);
-  background: linear-gradient(135deg, #fff0f6, #eef7ff);
-  color: #e26c9f;
 }
 
 .map-info-badge {
@@ -480,12 +471,64 @@ select {
   font-size: 14px;
   font-weight: 900;
   text-decoration: none;
-  box-shadow: 0 10px 22px rgba(180, 190, 220, 0.22);
-  transition: 0.2s;
 }
 
-.map-info-button:hover {
-  transform: translateY(-2px);
+/* 이미지 크게 보기 모달 */
+.image-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+  background: rgba(245, 248, 255, 0.68);
+  backdrop-filter: blur(12px);
+}
+
+.image-modal-large-box {
+  position: relative;
+  width: min(94vw, 980px);
+  height: min(88vh, 760px);
+  padding: 20px;
+  border-radius: 36px;
+  background:
+    radial-gradient(circle at top left, #ffe7f0 0%, transparent 34%),
+    radial-gradient(circle at bottom right, #dff2ff 0%, transparent 36%),
+    #ffffff;
+  box-shadow: 0 34px 90px rgba(170, 180, 220, 0.38);
+}
+
+.image-modal-large-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  border-radius: 26px;
+}
+
+.image-modal-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 42px;
+  height: 42px;
+  border: none;
+  outline: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.86);
+  color: #a7a2b2;
+  font-size: 26px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(180, 190, 220, 0.22);
+  z-index: 2;
+}
+
+.image-modal-close:hover {
+  transform: scale(1.08);
+  background: linear-gradient(135deg, #fff0f6, #eef7ff);
+  color: #e26c9f;
 }
 
 @media (max-width: 980px) {
@@ -532,231 +575,15 @@ select {
   .map-info-card {
     width: 230px;
   }
-  .clickable-theme-image {
-  cursor: zoom-in;
-  transition: 0.25s;
-}
 
-.clickable-theme-image:hover {
-  transform: scale(1.02);
-}
-
-.image-viewer {
-  position: fixed;
-  inset: 0;
-  z-index: 999999;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  background: rgba(10, 10, 16, 0.78);
-  backdrop-filter: blur(10px);
-
-  animation: fadeIn 0.2s ease;
-}
-
-.image-viewer-img {
-  max-width: 88vw;
-  max-height: 88vh;
-
-  border-radius: 26px;
-
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.28);
-
-  object-fit: contain;
-}
-
-.image-viewer-close {
-  position: absolute;
-  top: 28px;
-  right: 34px;
-
-  width: 44px;
-  height: 44px;
-
-  border: none;
-  border-radius: 50%;
-
-  background: rgba(255, 255, 255, 0.14);
-  backdrop-filter: blur(10px);
-
-  color: white;
-
-  font-size: 28px;
-  font-weight: 700;
-
-  cursor: pointer;
-
-  transition: 0.2s;
-}
-
-.image-viewer-close:hover {
-  transform: scale(1.08);
-
-  background: rgba(255, 255, 255, 0.24);
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
+  .image-modal-large-box {
+    width: 96vw;
+    height: 76vh;
+    padding: 14px;
+    border-radius: 26px;
   }
 
-  to {
-    opacity: 1;
+  .image-modal-large-img {
+    border-radius: 18px;
   }
-}
-.image-modal-box {
-  position: relative;
-
-  width: min(92vw, 900px);
-  max-height: 88vh;
-
-  padding: 18px;
-
-  border-radius: 34px;
-
-  background:
-    radial-gradient(circle at top left, #ffe7f0 0%, transparent 34%),
-    radial-gradient(circle at bottom right, #dff2ff 0%, transparent 36%),
-    #ffffff;
-
-  box-shadow: 0 30px 80px rgba(170, 180, 220, 0.35);
-
-  overflow: hidden;
-}
-
-.image-modal-img {
-  width: 100%;
-  max-height: calc(88vh - 36px);
-
-  object-fit: contain;
-
-  border-radius: 24px;
-
-  display: block;
-}
-
-.image-modal-close {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 38px;
-  height: 38px;
-
-  border: none;
-  outline: none;
-  border-radius: 50%;
-
-  background: rgba(255, 255, 255, 0.82);
-
-  backdrop-filter: blur(10px);
-
-  color: #a7a2b2;
-
-  font-family: "Pretendard", sans-serif;
-  font-size: 24px;
-  font-weight: 700;
-
-  cursor: pointer;
-
-  transition: 0.18s;
-
-  z-index: 2;
-}
-
-.image-modal-close:hover {
-  transform: scale(1.08);
-
-  background: linear-gradient(135deg, #fff0f6, #eef7ff);
-
-  color: #e26c9f;
-}
-.image-modal-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 999999;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 28px;
-
-  background: rgba(245, 248, 255, 0.68);
-  backdrop-filter: blur(12px);
-}
-
-.image-modal-large-box {
-  position: relative;
-
-  width: min(94vw, 980px);
-  height: min(88vh, 760px);
-
-  padding: 20px;
-
-  border-radius: 36px;
-
-  background:
-    radial-gradient(circle at top left, #ffe7f0 0%, transparent 34%),
-    radial-gradient(circle at bottom right, #dff2ff 0%, transparent 36%),
-    #ffffff;
-
-  box-shadow: 0 34px 90px rgba(170, 180, 220, 0.38);
-}
-
-.image-modal-large-img {
-  width: 100%;
-  height: 100%;
-
-  object-fit: contain;
-
-  display: block;
-
-  border-radius: 26px;
-}
-
-.image-modal-close {
-  position: absolute;
-  top: 18px;
-  right: 18px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 42px;
-  height: 42px;
-
-  border: none;
-  outline: none;
-  border-radius: 50%;
-
-  background: rgba(255, 255, 255, 0.86);
-  backdrop-filter: blur(10px);
-
-  color: #a7a2b2;
-  font-family: "Pretendard", sans-serif;
-  font-size: 26px;
-  font-weight: 700;
-
-  cursor: pointer;
-
-  box-shadow: 0 8px 20px rgba(180, 190, 220, 0.22);
-
-  transition: 0.18s;
-
-  z-index: 2;
-}
-
-.image-modal-close:hover {
-  transform: scale(1.08);
-  background: linear-gradient(135deg, #fff0f6, #eef7ff);
-  color: #e26c9f;
-}
 }
