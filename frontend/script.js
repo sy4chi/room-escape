@@ -167,30 +167,35 @@ function renderMarkers(filteredStores) {
     const kakaoMapUrl =
       `https://map.kakao.com/link/to/${encodeURIComponent(store.name)},${lat},${lng}`;
 
-    const overlayContent = document.createElement("div");
-    overlayContent.className = "custom-map-card";
+    const infoWindow = new kakao.maps.InfoWindow({
+      content: `
+        <div class="map-info-card">
+          <div class="map-info-badge">방탈출 매장</div>
 
-    overlayContent.innerHTML = `
-      <div class="custom-map-badge">방탈출 매장</div>
-      <div class="custom-map-title">${store.name}</div>
-      <div class="custom-map-address">${store.address}</div>
+          <div class="map-info-title">
+            ${store.name}
+          </div>
 
-      <a href="${kakaoMapUrl}" target="_blank" class="custom-map-btn">
-        카카오맵 길찾기
-      </a>
-    `;
+          <div class="map-info-address">
+            ${store.address}
+          </div>
 
-    const overlay = new kakao.maps.CustomOverlay({
-      content: overlayContent,
-      position,
-      yAnchor: 1.25
+          <a
+            href="${kakaoMapUrl}"
+            target="_blank"
+            class="map-info-button"
+          >
+            카카오맵 길찾기
+          </a>
+        </div>
+      `
     });
 
-    infoWindows.push(overlay);
+    infoWindows.push(infoWindow);
 
     kakao.maps.event.addListener(marker, "click", () => {
-      infoWindows.forEach((window) => window.setMap(null));
-      overlay.setMap(map);
+      infoWindows.forEach((window) => window.close());
+      infoWindow.open(map, marker);
     });
   });
 }
