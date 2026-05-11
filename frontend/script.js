@@ -9,13 +9,24 @@ const storeList = document.querySelector("#storeList");
 
 let stores = [];
 let themes = [];
+
+let map;
 let markers = [];
+let infoWindows = [];
 
-const map = L.map("map").setView([37.5665, 126.9780], 11);
+kakao.maps.load(() => {
+  initMap();
+  loadData();
+});
 
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-  attribution: "&copy; OpenStreetMap contributors"
-}).addTo(map);
+function initMap() {
+  const mapContainer = document.getElementById("map");
+
+  map = new kakao.maps.Map(mapContainer, {
+    center: new kakao.maps.LatLng(37.5665, 126.9780),
+    level: 8
+  });
+}
 
 const searchBox = document.createElement("input");
 searchBox.className = "store-search";
@@ -23,7 +34,6 @@ searchBox.placeholder = "매장명이나 지역을 검색해보세요";
 storeList.parentElement.insertBefore(searchBox, storeList);
 
 async function loadData() {
-  async function loadData() {
   try {
     const storeResponse = await fetch(`${API_URL}/stores`);
     const themeResponse = await fetch(`${API_URL}/themes`);
@@ -31,24 +41,8 @@ async function loadData() {
     stores = await storeResponse.json();
     themes = await themeResponse.json();
 
-    console.log("stores:", stores);
-    console.log("themes:", themes);
-
-    showAllStores(stores);
-  } catch (error) {
-    console.error("데이터 로딩 실패:", error);
-    alert("데이터를 불러오지 못했습니다. Console을 확인해주세요.");
-  }
-}
-  try {
-    const storeResponse = await fetch(`${API_URL}/stores`);
-    const themeResponse = await fetch(`${API_URL}/themes`);
-
-    stores = await storeResponse.json();
-    themes = await themeResponse.json();
-
-    console.log("stores:", stores);
-    console.log("themes:", themes);
+    if (!Array.isArray(stores)) stores = [];
+    if (!Array.isArray(themes)) themes = [];
 
     showAllStores(stores);
   } catch (error) {
@@ -64,20 +58,50 @@ async function loadData() {
 }
 
 function normalizeText(text) {
-  return String(text)
+  return String(text || "")
     .toLowerCase()
     .replace(/\s+/g, "")
-    .replace(/[-_.()/]/g, "")
-    .replace(/플레이/g, "play")
-    .replace(/룸/g, "room")
-    .replace(/이스케이프/g, "escape")
-    .replace(/방탈출/g, "escape")
+    .replace(/[-_.()/[\]{}'":,]/g, "")
+    .replace(/&/g, "and")
     .trim();
 }
 
-function clearMarkers() {
-  markers.forEach((marker) => marker.remove());
-  markers = [];
+function expandKeyword(keyword) {
+  const normalizedKeyword = normalizeText(keyword);
+
+  const result = new Set();
+  result.add(normalizedKeyword);
+
+  const synonyms = {
+    "플": ["play", "플레이"],
+    "플레": ["play", "플레이"],
+    "플레이": ["play"],
+    "play": ["플레이", "플"],
+    "룸": ["room"],
+    "room": ["룸"],
+    "이스케이프": ["escape"],
+    "방탈출": ["escape"],
+    "escape": ["이스케이프", "방탈출"],
+    "제로": ["zero"],
+    "zero": ["제로"]
+  };
+
+  Object.entries(synonyms).forEach(([key, values]) => {
+    const normalizedKey = normalizeText(key);
+
+    if (normalizedKeyword.includes(normalizedKey)) {
+      values.forEach((value) => {
+        result.add(
+          normalizedKeyword.replace(
+            normalizedKey,
+            normalizeText(value)
+          )
+        );
+      });
+    }
+  });
+
+  return [...result];
 }
 
 function getThemeStoreId(theme) {
@@ -89,7 +113,7 @@ function getThemePeople(theme) {
     return theme.people;
   }
 
-  return String(theme.people)
+  return String(theme.people || "")
     .split(",")
     .map((person) => Number(person.trim()))
     .filter((person) => !Number.isNaN(person));
@@ -99,6 +123,60 @@ function getStoreThemes(storeId) {
   return themes.filter((theme) => {
     return Number(getThemeStoreId(theme)) === Number(storeId);
   });
+}
+
+function clearMarkers() {
+  markers.forEach((marker) => marker.setMap(null));
+  markers = [];
+
+  infoWindows.forEach((infoWindow) => infoWindow.close());
+  infoWindows = [];
+}
+
+function renderMarkers(filteredStores) {
+  clearMarkers();
+
+  const bounds = new kakao.maps.LatLngBounds();
+
+  filteredStores.forEach((store) => {
+    const lat = Number(store.lat);
+    const lng = Number(store.lng);
+
+    if (Number.isNaN(lat) || Number.isNaN(lng)) return;
+
+    const position = new kakao.maps.LatLng(lat, lng);
+
+    const marker = new kakao.maps.Marker({
+      position
+    });
+
+    marker.setMap(map);
+    markers.push(marker);
+    bounds.extend(position);
+
+    const infoWindow = new kakao.maps.InfoWindow({
+      content: `
+        <div style="padding:10px;font-size:13px;line-height:1.5;">
+          <strong>${store.name}</strong><br />
+          ${store.address}
+        </div>
+      `
+    });
+
+    infoWindows.push(infoWindow);
+
+    kakao.maps.event.addListener(marker, "click", () => {
+      infoWindows.forEach((window) => window.close());
+      infoWindow.open(map, marker);
+    });
+  });
+
+  if (filteredStores.length > 0) {
+    map.setBounds(bounds);
+  } else {
+    map.setCenter(new kakao.maps.LatLng(37.5665, 126.9780));
+    map.setLevel(8);
+  }
 }
 
 function openStoreModal(store) {
@@ -160,7 +238,8 @@ function openStoreModal(store) {
     }
   });
 
-  map.setView([Number(store.lat), Number(store.lng)], 16);
+  map.setCenter(new kakao.maps.LatLng(Number(store.lat), Number(store.lng)));
+  map.setLevel(3);
 }
 
 function openThemeModal(theme) {
@@ -174,6 +253,7 @@ function openThemeModal(theme) {
   }
 
   const people = getThemePeople(theme);
+  const mapId = `themeModalMap-${theme.id || Date.now()}`;
 
   const modal = document.createElement("div");
   modal.className = "store-modal";
@@ -192,24 +272,21 @@ function openThemeModal(theme) {
         <p><strong>플레이타임</strong> ${theme.play_time || "확인 필요"}</p>
         <p><strong>가격</strong> ${theme.price || "확인 필요"}</p>
         <p><strong>매장</strong> ${store.name}</p>
-        ${
-  theme.reservation
-    ? `
-      <a
-        href="${theme.reservation}"
-        target="_blank"
-        class="reservation-button"
-      >
-        예약 사이트 바로가기
-      </a>
-    `
-    : ""
-}
       </div>
 
       <p class="modal-address">${store.address}</p>
 
-      <div id="themeModalMap"></div>
+      ${
+        theme.reservation
+          ? `
+            <a href="${theme.reservation}" target="_blank" class="reservation-button">
+              예약 사이트 바로가기
+            </a>
+          `
+          : ""
+      }
+
+      <div id="${mapId}" class="theme-modal-map"></div>
     </div>
   `;
 
@@ -226,21 +303,29 @@ function openThemeModal(theme) {
   });
 
   setTimeout(() => {
-    const modalMap = L.map("themeModalMap").setView(
-      [Number(store.lat), Number(store.lng)],
-      16
-    );
+    const position = new kakao.maps.LatLng(Number(store.lat), Number(store.lng));
+    const modalMapContainer = document.getElementById(mapId);
 
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: "&copy; OpenStreetMap contributors"
-    }).addTo(modalMap);
+    const modalMap = new kakao.maps.Map(modalMapContainer, {
+      center: position,
+      level: 3
+    });
 
-    L.marker([Number(store.lat), Number(store.lng)])
-      .addTo(modalMap)
-      .bindPopup(store.name)
-      .openPopup();
+    const marker = new kakao.maps.Marker({
+      position
+    });
 
-    modalMap.invalidateSize();
+    marker.setMap(modalMap);
+
+    const infoWindow = new kakao.maps.InfoWindow({
+      content: `
+        <div style="padding:10px;font-size:13px;">
+          ${store.name}
+        </div>
+      `
+    });
+
+    infoWindow.open(modalMap, marker);
   }, 100);
 }
 
@@ -274,41 +359,6 @@ function renderStores(filteredStores) {
   });
 }
 
-function renderMarkers(filteredStores) {
-  clearMarkers();
-
-  filteredStores.forEach((store) => {
-    const marker = L.marker([Number(store.lat), Number(store.lng)])
-      .addTo(map)
-      .bindPopup(`
-        <strong>${store.name}</strong><br />
-        ${store.address}
-      `);
-
-    markers.push(marker);
-  });
-
-  if (filteredStores.length === 1) {
-    map.setView(
-      [Number(filteredStores[0].lat), Number(filteredStores[0].lng)],
-      16
-    );
-  }
-
-  // if (filteredStores.length > 1) {
-  //   const bounds = L.latLngBounds(
-  //     filteredStores.map((store) => [
-  //       Number(store.lat),
-  //       Number(store.lng)
-  //     ])
-  //   );
-
-  //   map.fitBounds(bounds, {
-  //     padding: [40, 40]
-  //   });
-  // }
-}
-
 function showAllStores(filteredStores = stores) {
   renderStores(filteredStores);
   renderMarkers(filteredStores);
@@ -322,6 +372,8 @@ function searchStores() {
     return;
   }
 
+  const expandedKeywords = expandKeyword(keyword);
+
   const filteredStores = stores.filter((store) => {
     const searchableText = normalizeText(`
       ${store.name || ""}
@@ -330,7 +382,9 @@ function searchStores() {
       ${store.address || ""}
     `);
 
-    return searchableText.includes(keyword);
+    return expandedKeywords.some((expandedKeyword) => {
+      return searchableText.includes(expandedKeyword);
+    });
   });
 
   showAllStores(filteredStores);
@@ -351,9 +405,7 @@ function recommendTheme() {
       return Number(store.id) === Number(getThemeStoreId(theme));
     });
 
-    if (!store) {
-      return false;
-    }
+    if (!store) return false;
 
     const people = getThemePeople(theme);
 
@@ -405,5 +457,3 @@ function recommendTheme() {
 
 searchBox.addEventListener("input", searchStores);
 recommendButton.addEventListener("click", recommendTheme);
-
-loadData();
