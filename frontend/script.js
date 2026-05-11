@@ -294,11 +294,7 @@ function openThemeModal(theme) {
     <div class="store-modal-box">
       <button class="store-modal-close">×</button>
 
-      <img
-  class="theme-detail-image clickable-theme-image"
-  src="${theme.image || ""}"
-  alt="${theme.title}"
-/>
+      <img class="theme-detail-image" src="${theme.image || ""}" alt="${theme.title}" />
 
       <h2>${theme.title}</h2>
 
@@ -535,6 +531,7 @@ function recommendTheme() {
       viewer.remove();
     }
   });
+  
 }
 }
 
