@@ -38,14 +38,12 @@ function startApp() {
 }
 
 function initMap() {
-  map = new kakao.maps.Map(mapContainer, {
-    center: new kakao.maps.LatLng(37.5665, 126.9780),
-    level: 8
-  });
+  const mapContainer = document.getElementById("map");
 
-  if (stores.length > 0) {
-    renderMarkers(stores);
-  }
+  map = new kakao.maps.Map(mapContainer, {
+    center: new kakao.maps.LatLng(37.4979, 127.0276),
+    level: 5
+  });
 }
 
 async function loadData() {
@@ -192,10 +190,6 @@ function renderMarkers(filteredStores) {
       infoWindow.open(map, marker);
     });
   });
-
-  if (hasValidMarker && filteredStores.length > 1) {
-    map.setBounds(bounds);
-  }
 
   if (hasValidMarker && filteredStores.length === 1) {
     const store = filteredStores[0];
