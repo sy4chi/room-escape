@@ -344,13 +344,23 @@ function openThemeModal(theme) {
 
       marker.setMap(modalMap);
 
-      const infoWindow = new kakao.maps.InfoWindow({
-        content: `
-          <div style="padding:10px;font-size:13px;">
-            ${store.name}
-          </div>
-        `
-      });
+      const kakaoMapUrl = `https://map.kakao.com/link/to/${encodeURIComponent(store.name)},${store.lat},${store.lng}`;
+
+const infoWindow = new kakao.maps.InfoWindow({
+  content: `
+    <div style="padding:10px;font-size:13px;line-height:1.6;min-width:160px;">
+      <strong>${store.name}</strong><br />
+      ${store.address}<br />
+      <a
+        href="${kakaoMapUrl}"
+        target="_blank"
+        style="display:inline-block;margin-top:8px;color:#e26c9f;font-weight:700;text-decoration:none;"
+      >
+        카카오맵 길찾기
+      </a>
+    </div>
+  `
+});
 
       infoWindow.open(modalMap, marker);
     }, 100);
