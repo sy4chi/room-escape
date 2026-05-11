@@ -117,10 +117,8 @@ select {
   transition: 0.25s;
 }
 
-.recommend-btn:hover,
-.store-item:hover,
-.recommend-result-item:hover {
-  transform: translateY(-4px);
+.recommend-btn:hover {
+  transform: translateY(-3px);
 }
 
 .result-box {
@@ -181,11 +179,6 @@ select {
   background: #fffafd;
 }
 
-.store-list h3 {
-  margin-bottom: 18px;
-  font-size: 18px;
-}
-
 .store-search {
   width: 100%;
   height: 52px;
@@ -199,21 +192,17 @@ select {
   font-weight: 600;
   color: #444;
   outline: none;
-  transition: 0.25s;
 }
 
 .store-search::placeholder {
   color: #b8afc2;
-  font-weight: 500;
 }
 
 .store-search:focus {
   border-color: #ffbfd8;
-  background: linear-gradient(135deg, #ffffff, #fff7fb);
   box-shadow:
     0 0 0 5px rgba(255, 203, 226, 0.18),
     0 16px 34px rgba(190, 200, 230, 0.18);
-  transform: translateY(-1px);
 }
 
 .store-item {
@@ -223,6 +212,11 @@ select {
   margin-bottom: 14px;
   box-shadow: 0 10px 24px rgba(180, 190, 220, 0.16);
   transition: 0.2s;
+  cursor: pointer;
+}
+
+.store-item:hover {
+  transform: translateY(-3px);
 }
 
 .store-item strong {
@@ -237,14 +231,6 @@ select {
   line-height: 1.6;
 }
 
-.store-name {
-  cursor: pointer;
-}
-
-.store-name:hover {
-  color: #e26c9f;
-}
-
 .recommend-result-item {
   padding: 14px;
   margin-bottom: 12px;
@@ -255,10 +241,13 @@ select {
   transition: 0.2s;
 }
 
+.recommend-result-item:hover {
+  transform: translateY(-3px);
+}
+
 .recommend-result-item strong {
   display: block;
   margin-bottom: 6px;
-  color: #333;
 }
 
 .recommend-result-item p {
@@ -305,7 +294,6 @@ select {
 .store-modal-box h2 {
   margin-bottom: 10px;
   font-size: 26px;
-  letter-spacing: -1px;
 }
 
 .modal-address {
@@ -332,11 +320,6 @@ select {
   color: #333;
 }
 
-.modal-theme-list h3 {
-  margin-bottom: 14px;
-  font-size: 18px;
-}
-
 .modal-theme-card {
   display: flex;
   gap: 14px;
@@ -353,10 +336,6 @@ select {
   object-fit: cover;
 }
 
-.modal-theme-card strong {
-  font-size: 16px;
-}
-
 .modal-theme-card p {
   margin-top: 5px;
   font-size: 14px;
@@ -371,7 +350,6 @@ select {
   margin-bottom: 20px;
 }
 
-/* 추천 테마 상세 모달 버튼 */
 .theme-action-buttons {
   display: flex;
   flex-direction: column;
@@ -408,38 +386,59 @@ select {
 
 .theme-action-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 16px 34px rgba(180, 190, 220, 0.32);
 }
 
-.theme-action-btn:focus,
-.theme-action-btn:active,
-.theme-action-btn:visited {
-  color: #333;
-  border: none;
-  outline: none;
-  text-decoration: none;
+.theme-modal-map {
+  width: 100%;
+  height: 230px;
+  margin-top: 18px;
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: 0 14px 34px rgba(180, 190, 220, 0.18);
 }
 
-/* 카카오맵 마커 정보창 */
+/* 카카오맵 정보창 */
 .map-info-card {
+  position: relative;
   width: 260px;
-
   margin: -14px;
   padding: 20px;
-
+  overflow: hidden;
   border-radius: 0;
-
   background:
     radial-gradient(circle at top left, #ffe7f0 0%, transparent 38%),
     radial-gradient(circle at bottom right, #dff2ff 0%, transparent 40%),
     #ffffff;
-
   font-family: "Pretendard", sans-serif;
-
   box-shadow: 0 18px 42px rgba(170, 180, 220, 0.26);
+}
 
+.map-info-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
   border: none;
   outline: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 6px 16px rgba(180, 190, 220, 0.18);
+  color: #a7a2b2;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.18s;
+}
+
+.map-info-close:hover {
+  transform: scale(1.08);
+  background: linear-gradient(135deg, #fff0f6, #eef7ff);
+  color: #e26c9f;
 }
 
 .map-info-badge {
@@ -458,7 +457,6 @@ select {
   color: #2f2f35;
   font-size: 18px;
   font-weight: 900;
-  letter-spacing: -0.7px;
 }
 
 .map-info-address {
@@ -466,7 +464,6 @@ select {
   color: #777;
   font-size: 13px;
   line-height: 1.55;
-  word-break: keep-all;
 }
 
 .map-info-button {
@@ -480,7 +477,6 @@ select {
   border-radius: 999px;
   background: linear-gradient(135deg, #ffd5e5, #cfeaff);
   color: #333;
-  font-family: "Pretendard", sans-serif;
   font-size: 14px;
   font-weight: 900;
   text-decoration: none;
@@ -490,71 +486,9 @@ select {
 
 .map-info-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 14px 30px rgba(180, 190, 220, 0.3);
-}
-
-.map-info-button:focus,
-.map-info-button:active,
-.map-info-button:visited {
-  color: #333;
-  border: none;
-  outline: none;
-  text-decoration: none;
-}
-
-/* 카카오 기본 InfoWindow 보정 */
-.kakao-info-window-wrapper,
-.kakao-info-window-wrapper *,
-.map-info-card,
-.map-info-card * {
-  box-sizing: border-box;
-}
-
-.kakao-info-window-wrapper a,
-.map-info-card a,
-.theme-action-btn {
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* 예전 버튼 클래스 호환용 */
-.kakao-modal-map-btn,
-.reservation-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  margin-top: 14px;
-  padding: 14px;
-  border: none;
-  outline: none;
-  border-radius: 999px;
-  color: #333;
-  font-family: "Pretendard", sans-serif;
-  font-size: 15px;
-  font-weight: 900;
-  text-decoration: none;
-  transition: 0.2s;
-}
-
-.kakao-modal-map-btn {
-  background: linear-gradient(135deg, #fff3b8, #ffe3ef);
-}
-
-.reservation-button {
-  background: linear-gradient(135deg, #bee5ff, #ffd9e8);
-}
-
-.kakao-modal-map-btn:hover,
-.reservation-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 16px 34px rgba(180, 190, 220, 0.26);
 }
 
 @media (max-width: 980px) {
-  .header {
-    padding: 0 24px;
-  }
-
   .hero {
     flex-direction: column;
     text-align: center;
@@ -598,160 +532,4 @@ select {
   .map-info-card {
     width: 230px;
   }
-  /* 카카오맵 마커 정보창 — 윤곽선 덮도록 더 크게 */
-.map-info-card {
-  width: 310px;
-  padding: 26px;
-  margin: -16px;
-
-  border-radius: 32px;
-
-  background:
-    radial-gradient(circle at top left, #ffe7f0 0%, transparent 40%),
-    radial-gradient(circle at bottom right, #dff2ff 0%, transparent 42%),
-    #ffffff;
-
-  font-family: "Pretendard", sans-serif;
-
-  box-shadow: 0 22px 54px rgba(170, 180, 220, 0.3);
-
-  border: none;
-  outline: none;
-}
-
-.map-info-badge {
-  display: inline-block;
-  margin-bottom: 12px;
-  padding: 7px 12px;
-
-  border-radius: 999px;
-
-  background: #fff0f6;
-  color: #e26c9f;
-
-  font-size: 11px;
-  font-weight: 900;
-}
-
-.map-info-title {
-  margin-bottom: 9px;
-
-  color: #2f2f35;
-
-  font-size: 19px;
-  font-weight: 900;
-  letter-spacing: -0.7px;
-}
-
-.map-info-address {
-  margin-bottom: 18px;
-
-  color: #777;
-
-  font-size: 13px;
-  line-height: 1.6;
-  word-break: keep-all;
-}
-
-.map-info-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 100%;
-  height: 46px;
-
-  border: none;
-  outline: none;
-  border-radius: 999px;
-
-  background: linear-gradient(135deg, #ffd5e5, #cfeaff);
-
-  color: #333;
-  font-family: "Pretendard", sans-serif;
-  font-size: 14px;
-  font-weight: 900;
-  text-decoration: none;
-
-  box-shadow: 0 12px 26px rgba(180, 190, 220, 0.24);
-
-  transition: 0.2s;
-}
-
-.map-info-button:hover {
-  transform: translateY(-2px);
-}
-
-/* 추천 테마 모달 안 지도 */
-.theme-modal-map {
-  width: 100%;
-  height: 230px;
-
-  margin-top: 18px;
-
-  border-radius: 22px;
-  overflow: hidden;
-
-  box-shadow: 0 14px 34px rgba(180, 190, 220, 0.18);
-}
-
-/* 추천 테마 모달 버튼 */
-.theme-action-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-
-  margin-top: 18px;
-}
-
-.theme-action-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 100%;
-  height: 52px;
-
-  border: none;
-  outline: none;
-  border-radius: 999px;
-
-  font-family: "Pretendard", sans-serif;
-  font-size: 15px;
-  font-weight: 900;
-  text-decoration: none;
-
-  color: #333;
-
-  transition: 0.2s;
-}
-
-.kakao-route-btn {
-  background: linear-gradient(135deg, #fff3b8, #ffd6e8);
-  box-shadow: 0 12px 26px rgba(255, 210, 160, 0.28);
-}
-
-.reservation-route-btn {
-  background: linear-gradient(135deg, #bee5ff, #ffd9e8);
-  box-shadow: 0 12px 26px rgba(180, 190, 220, 0.24);
-}
-
-.theme-action-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 16px 34px rgba(180, 190, 220, 0.32);
-}
-.kakao-info-window-wrapper {
-  background: transparent !important;
-  border: none !important;
-  outline: none !important;
-  box-shadow: none !important;
-}
-.theme-modal-map {
-  width: 100%;
-  height: 230px;
-  margin-top: 18px;
-  border-radius: 22px;
-  overflow: hidden;
-  box-shadow: 0 14px 34px rgba(180, 190, 220, 0.18);
-}
 }
