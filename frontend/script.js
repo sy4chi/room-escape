@@ -6,32 +6,47 @@ const genreSelect = document.querySelector("#genre");
 const recommendButton = document.querySelector(".recommend-btn");
 const resultBox = document.querySelector("#result");
 const storeList = document.querySelector("#storeList");
+const mapContainer = document.querySelector("#map");
 
 let stores = [];
 let themes = [];
-
-let map;
+let map = null;
 let markers = [];
 let infoWindows = [];
-
-kakao.maps.load(() => {
-  initMap();
-  loadData();
-});
-
-function initMap() {
-  const mapContainer = document.getElementById("map");
-
-  map = new kakao.maps.Map(mapContainer, {
-    center: new kakao.maps.LatLng(37.5665, 126.9780),
-    level: 8
-  });
-}
 
 const searchBox = document.createElement("input");
 searchBox.className = "store-search";
 searchBox.placeholder = "매장명이나 지역을 검색해보세요";
 storeList.parentElement.insertBefore(searchBox, storeList);
+
+function startApp() {
+  loadData();
+
+  if (window.kakao && kakao.maps) {
+    kakao.maps.load(() => {
+      initMap();
+    });
+  } else {
+    console.error("카카오맵 SDK 로딩 실패");
+    mapContainer.innerHTML = `
+      <div style="padding:24px; color:#777; line-height:1.6;">
+        지도를 불러오지 못했습니다.<br />
+        카카오 JavaScript 키와 Web 플랫폼 도메인을 확인해주세요.
+      </div>
+    `;
+  }
+}
+
+function initMap() {
+  map = new kakao.maps.Map(mapContainer, {
+    center: new kakao.maps.LatLng(37.5665, 126.9780),
+    level: 8
+  });
+
+  if (stores.length > 0) {
+    renderMarkers(stores);
+  }
+}
 
 async function loadData() {
   try {
@@ -44,14 +59,17 @@ async function loadData() {
     if (!Array.isArray(stores)) stores = [];
     if (!Array.isArray(themes)) themes = [];
 
+    console.log("stores:", stores);
+    console.log("themes:", themes);
+
     showAllStores(stores);
   } catch (error) {
-    console.error(error);
+    console.error("데이터 로딩 실패:", error);
 
     storeList.innerHTML = `
       <div class="store-item">
         <strong>데이터를 불러오지 못했습니다</strong>
-        <p>백엔드 서버 연결을 확인해주세요.</p>
+        <p>백엔드 API 주소를 확인해주세요.</p>
       </div>
     `;
   }
@@ -134,9 +152,12 @@ function clearMarkers() {
 }
 
 function renderMarkers(filteredStores) {
+  if (!map) return;
+
   clearMarkers();
 
   const bounds = new kakao.maps.LatLngBounds();
+  let hasValidMarker = false;
 
   filteredStores.forEach((store) => {
     const lat = Number(store.lat);
@@ -153,6 +174,7 @@ function renderMarkers(filteredStores) {
     marker.setMap(map);
     markers.push(marker);
     bounds.extend(position);
+    hasValidMarker = true;
 
     const infoWindow = new kakao.maps.InfoWindow({
       content: `
@@ -171,9 +193,17 @@ function renderMarkers(filteredStores) {
     });
   });
 
-  if (filteredStores.length > 0) {
+  if (hasValidMarker && filteredStores.length > 1) {
     map.setBounds(bounds);
-  } else {
+  }
+
+  if (hasValidMarker && filteredStores.length === 1) {
+    const store = filteredStores[0];
+    map.setCenter(new kakao.maps.LatLng(Number(store.lat), Number(store.lng)));
+    map.setLevel(3);
+  }
+
+  if (!hasValidMarker) {
     map.setCenter(new kakao.maps.LatLng(37.5665, 126.9780));
     map.setLevel(8);
   }
@@ -238,8 +268,10 @@ function openStoreModal(store) {
     }
   });
 
-  map.setCenter(new kakao.maps.LatLng(Number(store.lat), Number(store.lng)));
-  map.setLevel(3);
+  if (map) {
+    map.setCenter(new kakao.maps.LatLng(Number(store.lat), Number(store.lng)));
+    map.setLevel(3);
+  }
 }
 
 function openThemeModal(theme) {
@@ -302,31 +334,33 @@ function openThemeModal(theme) {
     }
   });
 
-  setTimeout(() => {
-    const position = new kakao.maps.LatLng(Number(store.lat), Number(store.lng));
-    const modalMapContainer = document.getElementById(mapId);
+  if (window.kakao && kakao.maps) {
+    setTimeout(() => {
+      const position = new kakao.maps.LatLng(Number(store.lat), Number(store.lng));
+      const modalMapContainer = document.getElementById(mapId);
 
-    const modalMap = new kakao.maps.Map(modalMapContainer, {
-      center: position,
-      level: 3
-    });
+      const modalMap = new kakao.maps.Map(modalMapContainer, {
+        center: position,
+        level: 3
+      });
 
-    const marker = new kakao.maps.Marker({
-      position
-    });
+      const marker = new kakao.maps.Marker({
+        position
+      });
 
-    marker.setMap(modalMap);
+      marker.setMap(modalMap);
 
-    const infoWindow = new kakao.maps.InfoWindow({
-      content: `
-        <div style="padding:10px;font-size:13px;">
-          ${store.name}
-        </div>
-      `
-    });
+      const infoWindow = new kakao.maps.InfoWindow({
+        content: `
+          <div style="padding:10px;font-size:13px;">
+            ${store.name}
+          </div>
+        `
+      });
 
-    infoWindow.open(modalMap, marker);
-  }, 100);
+      infoWindow.open(modalMap, marker);
+    }, 100);
+  }
 }
 
 function renderStores(filteredStores) {
@@ -457,3 +491,5 @@ function recommendTheme() {
 
 searchBox.addEventListener("input", searchStores);
 recommendButton.addEventListener("click", recommendTheme);
+
+startApp();
