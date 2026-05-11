@@ -140,7 +140,7 @@ function clearMarkers() {
   markers.forEach((marker) => marker.setMap(null));
   markers = [];
 
-  infoWindows.forEach((window) => window.setMap(null));
+  infoWindows.forEach((infoWindow) => infoWindow.close());
   infoWindows = [];
 }
 
@@ -170,6 +170,10 @@ function renderMarkers(filteredStores) {
     const infoWindow = new kakao.maps.InfoWindow({
       content: `
         <div class="map-info-card">
+          <button class="map-info-close" onclick="window.closeKakaoInfoWindow()">
+            ×
+          </button>
+
           <div class="map-info-badge">방탈출 매장</div>
 
           <div class="map-info-title">
@@ -193,9 +197,16 @@ function renderMarkers(filteredStores) {
 
     infoWindows.push(infoWindow);
 
+    window.closeKakaoInfoWindow = function () {
+      infoWindows.forEach((infoWindow) => infoWindow.close());
+    };
     kakao.maps.event.addListener(marker, "click", () => {
       infoWindows.forEach((window) => window.close());
+
       infoWindow.open(map, marker);
+
+      map.setCenter(position);
+      map.setLevel(3);
     });
   });
 }
@@ -374,7 +385,15 @@ function renderStores(filteredStores) {
       <p>${store.address}</p>
     `;
 
-    item.querySelector(".store-name").addEventListener("click", () => {
+    item.addEventListener("click", () => {
+      const lat = Number(store.lat);
+      const lng = Number(store.lng);
+
+      if (!Number.isNaN(lat) && !Number.isNaN(lng) && map) {
+        map.setCenter(new kakao.maps.LatLng(lat, lng));
+        map.setLevel(3);
+      }
+
       openStoreModal(store);
     });
 
