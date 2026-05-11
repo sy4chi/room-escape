@@ -331,11 +331,12 @@ function openThemeModal(theme) {
 
   if (window.kakao && kakao.maps) {
     setTimeout(() => {
-      const position = new kakao.maps.LatLng(
-        Number(store.lat),
-        Number(store.lng)
-      );
+      const lat = Number(store.lat);
+      const lng = Number(store.lng);
 
+      if (Number.isNaN(lat) || Number.isNaN(lng)) return;
+
+      const position = new kakao.maps.LatLng(lat, lng);
       const modalMapContainer = document.getElementById(mapId);
 
       const modalMap = new kakao.maps.Map(modalMapContainer, {
@@ -348,17 +349,7 @@ function openThemeModal(theme) {
       });
 
       marker.setMap(modalMap);
-
-      const infoWindow = new kakao.maps.InfoWindow({
-        content: `
-          <div style="padding:10px;font-size:13px;font-family:'Pretendard',sans-serif;">
-            ${store.name}
-          </div>
-        `
-      });
-
-      infoWindow.open(modalMap, marker);
-    }, 200);
+    }, 300);
   }
 }
 
