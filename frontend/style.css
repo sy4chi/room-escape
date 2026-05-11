@@ -568,4 +568,13 @@ select {
   transform: translateY(-2px);
   box-shadow: 0 16px 34px rgba(180, 190, 220, 0.26);
 }
+.kakao-info-window-wrapper {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+.kakao-info-window-wrapper * {
+  border: none !important;
+}
 }
