@@ -3,6 +3,21 @@ const cors = require("cors");
 const { createClient } = require("@supabase/supabase-js");
 
 const app = express();
+const allowedOrigins = [
+  "https://room-escape-two.vercel.app/",
+  "https://bangtalmap.site",
+  "https://www.bangtalmap.site"
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("CORS blocked"));
+    }
+  }
+}));
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
