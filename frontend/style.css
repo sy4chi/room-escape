@@ -592,4 +592,146 @@ select {
   .map-info-card {
     width: 230px;
   }
+  /* 카카오맵 마커 정보창 — 윤곽선 덮도록 더 크게 */
+.map-info-card {
+  width: 310px;
+  padding: 26px;
+  margin: -16px;
+
+  border-radius: 32px;
+
+  background:
+    radial-gradient(circle at top left, #ffe7f0 0%, transparent 40%),
+    radial-gradient(circle at bottom right, #dff2ff 0%, transparent 42%),
+    #ffffff;
+
+  font-family: "Pretendard", sans-serif;
+
+  box-shadow: 0 22px 54px rgba(170, 180, 220, 0.3);
+
+  border: none;
+  outline: none;
+}
+
+.map-info-badge {
+  display: inline-block;
+  margin-bottom: 12px;
+  padding: 7px 12px;
+
+  border-radius: 999px;
+
+  background: #fff0f6;
+  color: #e26c9f;
+
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.map-info-title {
+  margin-bottom: 9px;
+
+  color: #2f2f35;
+
+  font-size: 19px;
+  font-weight: 900;
+  letter-spacing: -0.7px;
+}
+
+.map-info-address {
+  margin-bottom: 18px;
+
+  color: #777;
+
+  font-size: 13px;
+  line-height: 1.6;
+  word-break: keep-all;
+}
+
+.map-info-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  height: 46px;
+
+  border: none;
+  outline: none;
+  border-radius: 999px;
+
+  background: linear-gradient(135deg, #ffd5e5, #cfeaff);
+
+  color: #333;
+  font-family: "Pretendard", sans-serif;
+  font-size: 14px;
+  font-weight: 900;
+  text-decoration: none;
+
+  box-shadow: 0 12px 26px rgba(180, 190, 220, 0.24);
+
+  transition: 0.2s;
+}
+
+.map-info-button:hover {
+  transform: translateY(-2px);
+}
+
+/* 추천 테마 모달 안 지도 */
+.theme-modal-map {
+  width: 100%;
+  height: 230px;
+
+  margin-top: 18px;
+
+  border-radius: 22px;
+  overflow: hidden;
+
+  box-shadow: 0 14px 34px rgba(180, 190, 220, 0.18);
+}
+
+/* 추천 테마 모달 버튼 */
+.theme-action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  margin-top: 18px;
+}
+
+.theme-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  height: 52px;
+
+  border: none;
+  outline: none;
+  border-radius: 999px;
+
+  font-family: "Pretendard", sans-serif;
+  font-size: 15px;
+  font-weight: 900;
+  text-decoration: none;
+
+  color: #333;
+
+  transition: 0.2s;
+}
+
+.kakao-route-btn {
+  background: linear-gradient(135deg, #fff3b8, #ffd6e8);
+  box-shadow: 0 12px 26px rgba(255, 210, 160, 0.28);
+}
+
+.reservation-route-btn {
+  background: linear-gradient(135deg, #bee5ff, #ffd9e8);
+  box-shadow: 0 12px 26px rgba(180, 190, 220, 0.24);
+}
+
+.theme-action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 34px rgba(180, 190, 220, 0.32);
+}
 }

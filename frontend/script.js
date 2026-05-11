@@ -271,6 +271,7 @@ function openThemeModal(theme) {
   }
 
   const people = getThemePeople(theme);
+  const mapId = `themeModalMap-${theme.id || Date.now()}`;
 
   const kakaoMapUrl =
     `https://map.kakao.com/link/to/${encodeURIComponent(store.name)},${store.lat},${store.lng}`;
@@ -311,6 +312,8 @@ function openThemeModal(theme) {
             : ""
         }
       </div>
+
+      <div id="${mapId}" class="theme-modal-map"></div>
     </div>
   `;
 
@@ -325,6 +328,38 @@ function openThemeModal(theme) {
       modal.remove();
     }
   });
+
+  if (window.kakao && kakao.maps) {
+    setTimeout(() => {
+      const position = new kakao.maps.LatLng(
+        Number(store.lat),
+        Number(store.lng)
+      );
+
+      const modalMapContainer = document.getElementById(mapId);
+
+      const modalMap = new kakao.maps.Map(modalMapContainer, {
+        center: position,
+        level: 3
+      });
+
+      const marker = new kakao.maps.Marker({
+        position
+      });
+
+      marker.setMap(modalMap);
+
+      const infoWindow = new kakao.maps.InfoWindow({
+        content: `
+          <div style="padding:10px;font-size:13px;font-family:'Pretendard',sans-serif;">
+            ${store.name}
+          </div>
+        `
+      });
+
+      infoWindow.open(modalMap, marker);
+    }, 200);
+  }
 }
 
 function renderStores(filteredStores) {
