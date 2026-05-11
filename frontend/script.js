@@ -152,7 +152,6 @@ function renderMarkers(filteredStores) {
 
   clearMarkers();
 
-  const bounds = new kakao.maps.LatLngBounds();
   let hasValidMarker = false;
 
   filteredStores.forEach((store) => {
@@ -169,7 +168,6 @@ function renderMarkers(filteredStores) {
 
     marker.setMap(map);
     markers.push(marker);
-    bounds.extend(position);
     hasValidMarker = true;
 
     const kakaoMapUrl =
@@ -177,21 +175,19 @@ function renderMarkers(filteredStores) {
 
     const infoWindow = new kakao.maps.InfoWindow({
       content: `
-        <div style="padding:12px;font-size:13px;line-height:1.6;min-width:180px;">
-          <strong style="font-size:14px;color:#333;">
+        <div class="kakao-info-window">
+          <div class="kakao-info-title">
             ${store.name}
-          </strong>
-          <br />
+          </div>
 
-          <span style="color:#666;">
+          <div class="kakao-info-address">
             ${store.address}
-          </span>
-          <br />
+          </div>
 
           <a
             href="${kakaoMapUrl}"
             target="_blank"
-            style="display:inline-block;margin-top:10px;color:#e26c9f;font-weight:700;text-decoration:none;"
+            class="kakao-direction-btn"
           >
             카카오맵 길찾기
           </a>
@@ -328,7 +324,7 @@ function openThemeModal(theme) {
 
       <p class="modal-address">${store.address}</p>
 
-      <a href="${kakaoMapUrl}" target="_blank" class="reservation-button">
+      <a href="${kakaoMapUrl}" target="_blank" class="kakao-modal-map-btn">
         카카오맵 길찾기
       </a>
 
@@ -377,16 +373,6 @@ function openThemeModal(theme) {
       });
 
       marker.setMap(modalMap);
-
-      const infoWindow = new kakao.maps.InfoWindow({
-        content: `
-          <div style="padding:10px;font-size:13px;">
-            ${store.name}
-          </div>
-        `
-      });
-
-      infoWindow.open(modalMap, marker);
     }, 100);
   }
 }
