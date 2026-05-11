@@ -176,14 +176,13 @@ function renderMarkers(filteredStores) {
     const infoWindow = new kakao.maps.InfoWindow({
   content: `
     <div style="
-      width:220px;
-      padding:16px;
-      border-radius:22px;
-      background:linear-gradient(135deg,#ffffff,#fff7fb);
-      font-family:'Pretendard',sans-serif;
-      box-shadow:0 18px 40px rgba(180,190,220,0.28);
-      border:1px solid rgba(236,232,242,0.9);
-    ">
+  width:220px;
+  padding:16px;
+  border-radius:22px;
+  background:linear-gradient(135deg,#ffffff,#fff7fb);
+  font-family:'Pretendard',sans-serif;
+  box-shadow:0 18px 40px rgba(180,190,220,0.18);
+">
       <div style="
         display:inline-block;
         margin-bottom:10px;
