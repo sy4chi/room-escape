@@ -532,4 +532,78 @@ select {
   .map-info-card {
     width: 230px;
   }
+  .clickable-theme-image {
+  cursor: zoom-in;
+  transition: 0.25s;
+}
+
+.clickable-theme-image:hover {
+  transform: scale(1.02);
+}
+
+.image-viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(10, 10, 16, 0.78);
+  backdrop-filter: blur(10px);
+
+  animation: fadeIn 0.2s ease;
+}
+
+.image-viewer-img {
+  max-width: 88vw;
+  max-height: 88vh;
+
+  border-radius: 26px;
+
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.28);
+
+  object-fit: contain;
+}
+
+.image-viewer-close {
+  position: absolute;
+  top: 28px;
+  right: 34px;
+
+  width: 44px;
+  height: 44px;
+
+  border: none;
+  border-radius: 50%;
+
+  background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(10px);
+
+  color: white;
+
+  font-size: 28px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.image-viewer-close:hover {
+  transform: scale(1.08);
+
+  background: rgba(255, 255, 255, 0.24);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
 }

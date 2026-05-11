@@ -294,7 +294,11 @@ function openThemeModal(theme) {
     <div class="store-modal-box">
       <button class="store-modal-close">×</button>
 
-      <img class="theme-detail-image" src="${theme.image || ""}" alt="${theme.title}" />
+      <img
+  class="theme-detail-image clickable-theme-image"
+  src="${theme.image || ""}"
+  alt="${theme.title}"
+/>
 
       <h2>${theme.title}</h2>
 
@@ -329,6 +333,13 @@ function openThemeModal(theme) {
   `;
 
   document.body.appendChild(modal);
+  const detailImage = modal.querySelector(".clickable-theme-image");
+
+if (detailImage) {
+  detailImage.addEventListener("click", () => {
+    openImageViewer(theme.image);
+  });
+}
 
   modal.querySelector(".store-modal-close").addEventListener("click", () => {
     modal.remove();
@@ -494,6 +505,35 @@ function recommendTheme() {
 
     resultBox.appendChild(item);
   });
+  function openImageViewer(imageUrl) {
+  if (!imageUrl) return;
+
+  const viewer = document.createElement("div");
+  viewer.className = "image-viewer";
+
+  viewer.innerHTML = `
+    <button class="image-viewer-close">×</button>
+
+    <img
+      src="${imageUrl}"
+      alt="확대 이미지"
+      class="image-viewer-img"
+    />
+  `;
+
+  document.body.appendChild(viewer);
+
+  viewer.querySelector(".image-viewer-close")
+    .addEventListener("click", () => {
+      viewer.remove();
+    });
+
+  viewer.addEventListener("click", (event) => {
+    if (event.target === viewer) {
+      viewer.remove();
+    }
+  });
+}
 }
 
 searchBox.addEventListener("input", searchStores);
