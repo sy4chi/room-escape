@@ -28,9 +28,8 @@ function startApp() {
     });
   } else {
     mapContainer.innerHTML = `
-      <div style="padding:24px; color:#777; line-height:1.6;">
-        지도를 불러오지 못했습니다.<br />
-        카카오 JavaScript 키와 Web 플랫폼 도메인을 확인해주세요.
+      <div style="padding:24px;color:#777;line-height:1.6;font-family:'Pretendard',sans-serif;">
+        지도를 불러오지 못했습니다.
       </div>
     `;
   }
@@ -60,12 +59,11 @@ async function loadData() {
 
     showAllStores(stores);
   } catch (error) {
-    console.error("데이터 로딩 실패:", error);
+    console.error(error);
 
     storeList.innerHTML = `
       <div class="store-item">
         <strong>데이터를 불러오지 못했습니다</strong>
-        <p>백엔드 API 주소를 확인해주세요.</p>
       </div>
     `;
   }
@@ -76,7 +74,6 @@ function normalizeText(text) {
     .toLowerCase()
     .replace(/\s+/g, "")
     .replace(/[-_.()/[\]{}'":,]/g, "")
-    .replace(/&/g, "and")
     .trim();
 }
 
@@ -93,11 +90,11 @@ function expandKeyword(keyword) {
     "play": ["플레이", "플"],
     "룸": ["room"],
     "room": ["룸"],
+    "제로": ["zero"],
+    "zero": ["제로"],
     "이스케이프": ["escape"],
     "방탈출": ["escape"],
-    "escape": ["이스케이프", "방탈출"],
-    "제로": ["zero"],
-    "zero": ["제로"]
+    "escape": ["이스케이프", "방탈출"]
   };
 
   Object.entries(synonyms).forEach(([key, values]) => {
@@ -152,8 +149,6 @@ function renderMarkers(filteredStores) {
 
   clearMarkers();
 
-  let hasValidMarker = false;
-
   filteredStores.forEach((store) => {
     const lat = Number(store.lat);
     const lng = Number(store.lng);
@@ -168,79 +163,78 @@ function renderMarkers(filteredStores) {
 
     marker.setMap(map);
     markers.push(marker);
-    hasValidMarker = true;
 
     const kakaoMapUrl =
       `https://map.kakao.com/link/to/${encodeURIComponent(store.name)},${lat},${lng}`;
 
     const infoWindow = new kakao.maps.InfoWindow({
-  content: `
-    <div style="
-  width:220px;
-  padding:16px;
-  border-radius:22px;
-  background:linear-gradient(135deg,#ffffff,#fff7fb);
-  font-family:'Pretendard',sans-serif;
-  box-shadow:0 18px 40px rgba(180,190,220,0.18);
-">
-      <div style="
-        display:inline-block;
-        margin-bottom:10px;
-        padding:6px 10px;
-        border-radius:999px;
-        background:#fff0f6;
-        color:#e26c9f;
-        font-size:11px;
-        font-weight:800;
-      ">
-        방탈출 매장
-      </div>
+      content: `
+        <div class="kakao-info-window-wrapper">
+          <div style="
+            width:220px;
+            padding:16px;
+            border-radius:24px;
+            background:linear-gradient(135deg,#ffffff,#fff7fb);
+            font-family:'Pretendard',sans-serif;
+            box-shadow:0 18px 40px rgba(180,190,220,0.18);
+          ">
+            <div style="
+              display:inline-block;
+              margin-bottom:10px;
+              padding:6px 10px;
+              border-radius:999px;
+              background:#fff0f6;
+              color:#e26c9f;
+              font-size:11px;
+              font-weight:800;
+            ">
+              방탈출 매장
+            </div>
 
-      <div style="
-        margin-bottom:8px;
-        font-size:17px;
-        font-weight:900;
-        color:#33343a;
-        letter-spacing:-0.6px;
-      ">
-        ${store.name}
-      </div>
+            <div style="
+              margin-bottom:8px;
+              font-size:17px;
+              font-weight:900;
+              color:#33343a;
+              letter-spacing:-0.6px;
+            ">
+              ${store.name}
+            </div>
 
-      <div style="
-        margin-bottom:14px;
-        color:#777;
-        font-size:13px;
-        line-height:1.55;
-        word-break:keep-all;
-      ">
-        ${store.address}
-      </div>
+            <div style="
+              margin-bottom:14px;
+              color:#777;
+              font-size:13px;
+              line-height:1.55;
+            ">
+              ${store.address}
+            </div>
 
-      <a
-        href="${kakaoMapUrl}"
-        target="_blank"
-        style="
-          display:flex;
-          align-items:center;
-          justify-content:center;
-          width:100%;
-          height:42px;
-          border-radius:999px;
-          background:linear-gradient(135deg,#ffd5e5,#cfeaff);
-          color:#333;
-          font-size:13px;
-          font-weight:900;
-          text-decoration:none;
-          outline:none;
-          border:none;
-          box-shadow:0 10px 22px rgba(180,190,220,0.2);
-        "
-      >
-        카카오맵 길찾기
-      </a>
-    </div>
-  `
-});
+            <a
+              href="${kakaoMapUrl}"
+              target="_blank"
+              style="
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                width:100%;
+                height:42px;
+                border-radius:999px;
+                background:linear-gradient(135deg,#ffd5e5,#cfeaff);
+                color:#333;
+                font-size:13px;
+                font-weight:900;
+                text-decoration:none;
+                outline:none;
+                border:none;
+              "
+            >
+              카카오맵 길찾기
+            </a>
+          </div>
+        </div>
+      `
+    });
 
     infoWindows.push(infoWindow);
 
@@ -249,19 +243,6 @@ function renderMarkers(filteredStores) {
       infoWindow.open(map, marker);
     });
   });
-
-  if (hasValidMarker && filteredStores.length === 1) {
-    const store = filteredStores[0];
-
-    map.setCenter(
-      new kakao.maps.LatLng(
-        Number(store.lat),
-        Number(store.lng)
-      )
-    );
-
-    map.setLevel(3);
-  }
 }
 
 function openStoreModal(store) {
@@ -322,16 +303,6 @@ function openStoreModal(store) {
       modal.remove();
     }
   });
-
-  if (map) {
-    map.setCenter(
-      new kakao.maps.LatLng(
-        Number(store.lat),
-        Number(store.lng)
-      )
-    );
-    map.setLevel(3);
-  }
 }
 
 function openThemeModal(theme) {
@@ -345,7 +316,6 @@ function openThemeModal(theme) {
   }
 
   const people = getThemePeople(theme);
-  const mapId = `themeModalMap-${theme.id || Date.now()}`;
 
   const kakaoMapUrl =
     `https://map.kakao.com/link/to/${encodeURIComponent(store.name)},${store.lat},${store.lng}`;
@@ -371,21 +341,21 @@ function openThemeModal(theme) {
 
       <p class="modal-address">${store.address}</p>
 
-      <a href="${kakaoMapUrl}" target="_blank" class="kakao-modal-map-btn">
-        카카오맵 길찾기
-      </a>
+      <div class="theme-action-buttons">
+        <a href="${kakaoMapUrl}" target="_blank" class="theme-action-btn kakao-route-btn">
+          카카오맵 길찾기
+        </a>
 
-      ${
-        theme.reservation
-          ? `
-            <a href="${theme.reservation}" target="_blank" class="reservation-button">
-              예약 사이트 바로가기
-            </a>
-          `
-          : ""
-      }
-
-      <div id="${mapId}" class="theme-modal-map"></div>
+        ${
+          theme.reservation
+            ? `
+              <a href="${theme.reservation}" target="_blank" class="theme-action-btn reservation-route-btn">
+                예약 사이트 바로가기
+              </a>
+            `
+            : ""
+        }
+      </div>
     </div>
   `;
 
@@ -400,28 +370,6 @@ function openThemeModal(theme) {
       modal.remove();
     }
   });
-
-  if (window.kakao && kakao.maps) {
-    setTimeout(() => {
-      const position = new kakao.maps.LatLng(
-        Number(store.lat),
-        Number(store.lng)
-      );
-
-      const modalMapContainer = document.getElementById(mapId);
-
-      const modalMap = new kakao.maps.Map(modalMapContainer, {
-        center: position,
-        level: 3
-      });
-
-      const marker = new kakao.maps.Marker({
-        position
-      });
-
-      marker.setMap(modalMap);
-    }, 100);
-  }
 }
 
 function renderStores(filteredStores) {
@@ -431,7 +379,6 @@ function renderStores(filteredStores) {
     storeList.innerHTML = `
       <div class="store-item">
         <strong>검색 결과가 없습니다</strong>
-        <p>다른 검색어를 입력해주세요.</p>
       </div>
     `;
     return;
@@ -505,11 +452,11 @@ function recommendTheme() {
     const people = getThemePeople(theme);
 
     const areaMatched = selectedArea
-      ? store.area === selectedArea
+      ? normalizeText(store.area) === normalizeText(selectedArea)
       : true;
 
     const genreMatched = selectedGenre
-      ? String(theme.genre || "").includes(selectedGenre)
+      ? normalizeText(theme.genre).includes(normalizeText(selectedGenre))
       : true;
 
     return (
@@ -521,8 +468,7 @@ function recommendTheme() {
 
   if (matchedThemes.length === 0) {
     resultBox.innerHTML = `
-      조건에 맞는 테마가 없습니다.<br />
-      다른 조건으로 다시 검색해보세요.
+      조건에 맞는 테마가 없습니다.
     `;
     return;
   }
