@@ -509,21 +509,23 @@ function recommendTheme() {
   if (!imageUrl) return;
 
   const viewer = document.createElement("div");
-  viewer.className = "image-viewer";
+  viewer.className = "store-modal";
 
   viewer.innerHTML = `
-    <button class="image-viewer-close">×</button>
+    <div class="image-modal-box">
+      <button class="image-modal-close">×</button>
 
-    <img
-      src="${imageUrl}"
-      alt="확대 이미지"
-      class="image-viewer-img"
-    />
+      <img
+        src="${imageUrl}"
+        alt="확대 이미지"
+        class="image-modal-img"
+      />
+    </div>
   `;
 
   document.body.appendChild(viewer);
 
-  viewer.querySelector(".image-viewer-close")
+  viewer.querySelector(".image-modal-close")
     .addEventListener("click", () => {
       viewer.remove();
     });
