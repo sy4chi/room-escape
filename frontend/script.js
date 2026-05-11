@@ -27,7 +27,6 @@ function startApp() {
       initMap();
     });
   } else {
-    console.error("카카오맵 SDK 로딩 실패");
     mapContainer.innerHTML = `
       <div style="padding:24px; color:#777; line-height:1.6;">
         지도를 불러오지 못했습니다.<br />
@@ -38,12 +37,14 @@ function startApp() {
 }
 
 function initMap() {
-  const mapContainer = document.getElementById("map");
-
   map = new kakao.maps.Map(mapContainer, {
     center: new kakao.maps.LatLng(37.4979, 127.0276),
     level: 5
   });
+
+  if (stores.length > 0) {
+    renderMarkers(stores);
+  }
 }
 
 async function loadData() {
@@ -56,9 +57,6 @@ async function loadData() {
 
     if (!Array.isArray(stores)) stores = [];
     if (!Array.isArray(themes)) themes = [];
-
-    console.log("stores:", stores);
-    console.log("themes:", themes);
 
     showAllStores(stores);
   } catch (error) {
@@ -84,8 +82,8 @@ function normalizeText(text) {
 
 function expandKeyword(keyword) {
   const normalizedKeyword = normalizeText(keyword);
-
   const result = new Set();
+
   result.add(normalizedKeyword);
 
   const synonyms = {
@@ -174,11 +172,29 @@ function renderMarkers(filteredStores) {
     bounds.extend(position);
     hasValidMarker = true;
 
+    const kakaoMapUrl =
+      `https://map.kakao.com/link/to/${encodeURIComponent(store.name)},${lat},${lng}`;
+
     const infoWindow = new kakao.maps.InfoWindow({
       content: `
-        <div style="padding:10px;font-size:13px;line-height:1.5;">
-          <strong>${store.name}</strong><br />
-          ${store.address}
+        <div style="padding:12px;font-size:13px;line-height:1.6;min-width:180px;">
+          <strong style="font-size:14px;color:#333;">
+            ${store.name}
+          </strong>
+          <br />
+
+          <span style="color:#666;">
+            ${store.address}
+          </span>
+          <br />
+
+          <a
+            href="${kakaoMapUrl}"
+            target="_blank"
+            style="display:inline-block;margin-top:10px;color:#e26c9f;font-weight:700;text-decoration:none;"
+          >
+            카카오맵 길찾기
+          </a>
         </div>
       `
     });
@@ -193,13 +209,15 @@ function renderMarkers(filteredStores) {
 
   if (hasValidMarker && filteredStores.length === 1) {
     const store = filteredStores[0];
-    map.setCenter(new kakao.maps.LatLng(Number(store.lat), Number(store.lng)));
-    map.setLevel(3);
-  }
 
-  if (!hasValidMarker) {
-    map.setCenter(new kakao.maps.LatLng(37.5665, 126.9780));
-    map.setLevel(8);
+    map.setCenter(
+      new kakao.maps.LatLng(
+        Number(store.lat),
+        Number(store.lng)
+      )
+    );
+
+    map.setLevel(3);
   }
 }
 
@@ -263,7 +281,12 @@ function openStoreModal(store) {
   });
 
   if (map) {
-    map.setCenter(new kakao.maps.LatLng(Number(store.lat), Number(store.lng)));
+    map.setCenter(
+      new kakao.maps.LatLng(
+        Number(store.lat),
+        Number(store.lng)
+      )
+    );
     map.setLevel(3);
   }
 }
@@ -280,6 +303,9 @@ function openThemeModal(theme) {
 
   const people = getThemePeople(theme);
   const mapId = `themeModalMap-${theme.id || Date.now()}`;
+
+  const kakaoMapUrl =
+    `https://map.kakao.com/link/to/${encodeURIComponent(store.name)},${store.lat},${store.lng}`;
 
   const modal = document.createElement("div");
   modal.className = "store-modal";
@@ -301,6 +327,10 @@ function openThemeModal(theme) {
       </div>
 
       <p class="modal-address">${store.address}</p>
+
+      <a href="${kakaoMapUrl}" target="_blank" class="reservation-button">
+        카카오맵 길찾기
+      </a>
 
       ${
         theme.reservation
@@ -330,7 +360,11 @@ function openThemeModal(theme) {
 
   if (window.kakao && kakao.maps) {
     setTimeout(() => {
-      const position = new kakao.maps.LatLng(Number(store.lat), Number(store.lng));
+      const position = new kakao.maps.LatLng(
+        Number(store.lat),
+        Number(store.lng)
+      );
+
       const modalMapContainer = document.getElementById(mapId);
 
       const modalMap = new kakao.maps.Map(modalMapContainer, {
@@ -344,23 +378,13 @@ function openThemeModal(theme) {
 
       marker.setMap(modalMap);
 
-      const kakaoMapUrl = `https://map.kakao.com/link/to/${encodeURIComponent(store.name)},${store.lat},${store.lng}`;
-
-const infoWindow = new kakao.maps.InfoWindow({
-  content: `
-    <div style="padding:10px;font-size:13px;line-height:1.6;min-width:160px;">
-      <strong>${store.name}</strong><br />
-      ${store.address}<br />
-      <a
-        href="${kakaoMapUrl}"
-        target="_blank"
-        style="display:inline-block;margin-top:8px;color:#e26c9f;font-weight:700;text-decoration:none;"
-      >
-        카카오맵 길찾기
-      </a>
-    </div>
-  `
-});
+      const infoWindow = new kakao.maps.InfoWindow({
+        content: `
+          <div style="padding:10px;font-size:13px;">
+            ${store.name}
+          </div>
+        `
+      });
 
       infoWindow.open(modalMap, marker);
     }, 100);
