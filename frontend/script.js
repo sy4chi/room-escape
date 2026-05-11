@@ -174,26 +174,72 @@ function renderMarkers(filteredStores) {
       `https://map.kakao.com/link/to/${encodeURIComponent(store.name)},${lat},${lng}`;
 
     const infoWindow = new kakao.maps.InfoWindow({
-      content: `
-        <div class="kakao-info-window">
-          <div class="kakao-info-title">
-            ${store.name}
-          </div>
+  content: `
+    <div style="
+      width:220px;
+      padding:16px;
+      border-radius:22px;
+      background:linear-gradient(135deg,#ffffff,#fff7fb);
+      font-family:'Pretendard',sans-serif;
+      box-shadow:0 18px 40px rgba(180,190,220,0.28);
+      border:1px solid rgba(236,232,242,0.9);
+    ">
+      <div style="
+        display:inline-block;
+        margin-bottom:10px;
+        padding:6px 10px;
+        border-radius:999px;
+        background:#fff0f6;
+        color:#e26c9f;
+        font-size:11px;
+        font-weight:800;
+      ">
+        방탈출 매장
+      </div>
 
-          <div class="kakao-info-address">
-            ${store.address}
-          </div>
+      <div style="
+        margin-bottom:8px;
+        font-size:17px;
+        font-weight:900;
+        color:#33343a;
+        letter-spacing:-0.6px;
+      ">
+        ${store.name}
+      </div>
 
-          <a
-            href="${kakaoMapUrl}"
-            target="_blank"
-            class="kakao-direction-btn"
-          >
-            카카오맵 길찾기
-          </a>
-        </div>
-      `
-    });
+      <div style="
+        margin-bottom:14px;
+        color:#777;
+        font-size:13px;
+        line-height:1.55;
+        word-break:keep-all;
+      ">
+        ${store.address}
+      </div>
+
+      <a
+        href="${kakaoMapUrl}"
+        target="_blank"
+        style="
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          width:100%;
+          height:42px;
+          border-radius:999px;
+          background:linear-gradient(135deg,#ffd5e5,#cfeaff);
+          color:#333;
+          font-size:13px;
+          font-weight:900;
+          text-decoration:none;
+          box-shadow:0 10px 22px rgba(180,190,220,0.2);
+        "
+      >
+        카카오맵 길찾기
+      </a>
+    </div>
+  `
+});
 
     infoWindows.push(infoWindow);
 
