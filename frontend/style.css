@@ -601,4 +601,9 @@ select {
 .kakao-info-window-wrapper a {
   -webkit-tap-highlight-color: transparent;
 }
+.kakao-info-window-wrapper,
+.kakao-info-window-wrapper * {
+  border: none !important;
+  outline: none !important;
+}
 }
