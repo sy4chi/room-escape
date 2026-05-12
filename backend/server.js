@@ -3,43 +3,41 @@ const cors = require("cors");
 const { createClient } = require("@supabase/supabase-js");
 
 const app = express();
+const PORT = process.env.PORT || 3000;
+
 const allowedOrigins = [
-  "https://room-escape-two.vercel.app/",
+  "https://room-escape-two.vercel.app",
   "https://bangtalmap.site",
   "https://www.bangtalmap.site"
 ];
 
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("CORS blocked"));
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.log("CORS blocked:", origin);
+        callback(new Error("CORS blocked"));
+      }
     }
-  }
-}));
-const PORT = process.env.PORT || 3000;
+  })
+);
 
-app.use(cors());
 app.use(express.json());
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+  console.error("Supabase 환경변수가 설정되지 않았습니다.");
+}
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 app.get("/", (req, res) => {
   res.send("방탈출 지도 백엔드 서버 실행 중");
 });
-
-function parsePeople(people) {
-  if (!people) return [];
-
-  return String(people)
-    .split(",")
-    .map((person) => Number(String(person).trim()))
-    .filter((person) => !Number.isNaN(person));
-}
 
 app.get("/stores", async (req, res) => {
   const { data, error } = await supabase
@@ -59,7 +57,8 @@ app.get("/stores", async (req, res) => {
 app.get("/themes", async (req, res) => {
   const { data, error } = await supabase
     .from("themes")
-    .select("*");
+    .select("*")
+    .order("id", { ascending: true });
 
   if (error) {
     return res.status(500).json({
