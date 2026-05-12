@@ -16,8 +16,8 @@ body {
 }
 
 .header {
-  height: 78px;
-  padding: 0 24px;
+  height: 180px;
+  padding: 20px 24px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -28,25 +28,26 @@ body {
   align-items: center;
   justify-content: center;
   text-decoration: none;
+  width: 100%;
 }
 
 .header-logo {
   display: block;
   width: auto;
-  height: 48px;
-  max-width: 220px;
+  height: 150px;
+  max-width: 90vw;
   object-fit: contain;
 }
 
 @media (max-width: 520px) {
   .header {
-    height: 70px;
-    padding: 0 16px;
+    height: 140px;
+    padding: 16px;
   }
 
   .header-logo {
-    height: 42px;
-    max-width: 180px;
+    height: 110px;
+    max-width: 92vw;
   }
 }
 
