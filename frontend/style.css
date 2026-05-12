@@ -17,15 +17,37 @@ body {
 
 .header {
   height: 78px;
-  padding: 0 60px;
+  padding: 0 24px;
   display: flex;
   align-items: center;
+  justify-content: center;
 }
 
-.logo {
-  font-size: 24px;
-  font-weight: 800;
-  letter-spacing: -1px;
+.logo-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.header-logo {
+  display: block;
+  width: auto;
+  height: 48px;
+  max-width: 220px;
+  object-fit: contain;
+}
+
+@media (max-width: 520px) {
+  .header {
+    height: 70px;
+    padding: 0 16px;
+  }
+
+  .header-logo {
+    height: 42px;
+    max-width: 180px;
+  }
 }
 
 .hero {
