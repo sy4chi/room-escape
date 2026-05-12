@@ -1,5 +1,4 @@
 const API_URL = "https://room-escape.onrender.com";
-const API_URL = "https://www.bangtalmap.site/";
 
 const locationSelect = document.querySelector("#location");
 const peopleSelect = document.querySelector("#people");
@@ -18,7 +17,10 @@ let infoWindows = [];
 const searchBox = document.createElement("input");
 searchBox.className = "store-search";
 searchBox.placeholder = "매장명이나 지역을 검색해보세요";
-storeList.parentElement.insertBefore(searchBox, storeList);
+
+if (storeList && storeList.parentElement) {
+  storeList.parentElement.insertBefore(searchBox, storeList);
+}
 
 function startApp() {
   loadData();
@@ -29,7 +31,7 @@ function startApp() {
     });
   } else {
     mapContainer.innerHTML = `
-      <div style="padding:24px;color:#777;line-height:1.6;font-family:'Pretendard',sans-serif;">
+      <div style="padding:24px;color:#777;line-height:1.6;">
         지도를 불러오지 못했습니다.
       </div>
     `;
@@ -49,8 +51,18 @@ function initMap() {
 
 async function loadData() {
   try {
-    const storeResponse = await fetch(`${API_URL}/stores`);
-    const themeResponse = await fetch(`${API_URL}/themes`);
+    const [storeResponse, themeResponse] = await Promise.all([
+      fetch(`${API_URL}/stores`),
+      fetch(`${API_URL}/themes`)
+    ]);
+
+    if (!storeResponse.ok) {
+      throw new Error(`/stores 오류: ${storeResponse.status}`);
+    }
+
+    if (!themeResponse.ok) {
+      throw new Error(`/themes 오류: ${themeResponse.status}`);
+    }
 
     stores = await storeResponse.json();
     themes = await themeResponse.json();
@@ -60,10 +72,12 @@ async function loadData() {
 
     showAllStores(stores);
   } catch (error) {
-    console.error(error);
+    console.error("데이터 불러오기 실패:", error);
+
     storeList.innerHTML = `
       <div class="store-item">
         <strong>데이터를 불러오지 못했습니다</strong>
+        <p>Render 서버 주소, CORS, Supabase 연결을 확인해주세요.</p>
       </div>
     `;
   }
@@ -103,10 +117,7 @@ function expandKeyword(keyword) {
     if (normalizedKeyword.includes(normalizedKey)) {
       values.forEach((value) => {
         result.add(
-          normalizedKeyword.replace(
-            normalizedKey,
-            normalizeText(value)
-          )
+          normalizedKeyword.replace(normalizedKey, normalizeText(value))
         );
       });
     }
@@ -120,9 +131,7 @@ function getThemeStoreId(theme) {
 }
 
 function getThemePeople(theme) {
-  if (Array.isArray(theme.people)) {
-    return theme.people;
-  }
+  if (Array.isArray(theme.people)) return theme.people.map(Number);
 
   return String(theme.people || "")
     .split(",")
@@ -168,18 +177,17 @@ function renderMarkers(filteredStores) {
     marker.setMap(map);
     markers.push(marker);
 
-    const kakaoMapUrl =
-      `https://map.kakao.com/link/to/${encodeURIComponent(store.name)},${lat},${lng}`;
+    const kakaoMapUrl = `https://map.kakao.com/link/to/${encodeURIComponent(
+      store.name
+    )},${lat},${lng}`;
 
     const infoWindow = new kakao.maps.InfoWindow({
       content: `
         <div class="map-info-card">
           <button class="map-info-close" onclick="window.closeKakaoInfoWindow()">×</button>
-
           <div class="map-info-badge">방탈출 매장</div>
-          <div class="map-info-title">${store.name}</div>
-          <div class="map-info-address">${store.address}</div>
-
+          <div class="map-info-title">${store.name || "이름 없음"}</div>
+          <div class="map-info-address">${store.address || "주소 확인 필요"}</div>
           <a href="${kakaoMapUrl}" target="_blank" class="map-info-button">
             카카오맵 길찾기
           </a>
@@ -190,9 +198,8 @@ function renderMarkers(filteredStores) {
     infoWindows.push(infoWindow);
 
     kakao.maps.event.addListener(marker, "click", () => {
-      infoWindows.forEach((window) => window.close());
+      infoWindows.forEach((item) => item.close());
       infoWindow.open(map, marker);
-
       map.setCenter(position);
       map.setLevel(3);
     });
@@ -209,8 +216,8 @@ function openStoreModal(store) {
     <div class="store-modal-box">
       <button class="store-modal-close">×</button>
 
-      <h2>${store.name}</h2>
-      <p class="modal-address">${store.address}</p>
+      <h2>${store.name || "매장명 없음"}</h2>
+      <p class="modal-address">${store.address || "주소 확인 필요"}</p>
 
       <div class="modal-info">
         <p><strong>지역</strong> ${store.area || "확인 필요"}</p>
@@ -220,26 +227,26 @@ function openStoreModal(store) {
 
       <div class="modal-theme-list">
         <h3>보유 테마</h3>
-
         ${
           storeThemes.length > 0
-            ? storeThemes.map((theme) => {
-                const people = getThemePeople(theme);
+            ? storeThemes
+                .map((theme) => {
+                  const people = getThemePeople(theme);
 
-                return `
-                  <div class="modal-theme-card">
-                    <img src="${theme.image || ""}" alt="${theme.title}" />
-
-                    <div>
-                      <strong>${theme.title}</strong>
-                      <p>${theme.genre || "장르 확인 필요"}</p>
-                      <p>${people.join(", ")}명 추천</p>
-                      <p>${theme.play_time || "플레이타임 확인 필요"}</p>
-                      <p>${theme.price || "가격 확인 필요"}</p>
+                  return `
+                    <div class="modal-theme-card">
+                      <img src="${theme.image || ""}" alt="${theme.title || "테마 이미지"}" />
+                      <div>
+                        <strong>${theme.title || "테마명 없음"}</strong>
+                        <p>${theme.genre || "장르 확인 필요"}</p>
+                        <p>${people.length > 0 ? people.join(", ") + "명 추천" : "추천 인원 확인 필요"}</p>
+                        <p>${theme.play_time || "플레이타임 확인 필요"}</p>
+                        <p>${theme.price || "가격 확인 필요"}</p>
+                      </div>
                     </div>
-                  </div>
-                `;
-              }).join("")
+                  `;
+                })
+                .join("")
             : "<p>등록된 테마가 없습니다.</p>"
         }
       </div>
@@ -253,9 +260,7 @@ function openStoreModal(store) {
   });
 
   modal.addEventListener("click", (event) => {
-    if (event.target === modal) {
-      modal.remove();
-    }
+    if (event.target === modal) modal.remove();
   });
 }
 
@@ -268,12 +273,7 @@ function openImageViewer(imageUrl) {
   viewer.innerHTML = `
     <div class="image-modal-large-box">
       <button class="image-modal-close">×</button>
-
-      <img
-        src="${imageUrl}"
-        alt="확대 이미지"
-        class="image-modal-large-img"
-      />
+      <img src="${imageUrl}" alt="확대 이미지" class="image-modal-large-img" />
     </div>
   `;
 
@@ -284,9 +284,7 @@ function openImageViewer(imageUrl) {
   });
 
   viewer.addEventListener("click", (event) => {
-    if (event.target === viewer) {
-      viewer.remove();
-    }
+    if (event.target === viewer) viewer.remove();
   });
 }
 
@@ -303,8 +301,9 @@ function openThemeModal(theme) {
   const people = getThemePeople(theme);
   const mapId = `themeModalMap-${theme.id || Date.now()}`;
 
-  const kakaoMapUrl =
-    `https://map.kakao.com/link/to/${encodeURIComponent(store.name)},${store.lat},${store.lng}`;
+  const kakaoMapUrl = `https://map.kakao.com/link/to/${encodeURIComponent(
+    store.name
+  )},${store.lat},${store.lng}`;
 
   const modal = document.createElement("div");
   modal.className = "store-modal";
@@ -316,20 +315,20 @@ function openThemeModal(theme) {
       <img
         class="theme-detail-image clickable-theme-image"
         src="${theme.image || ""}"
-        alt="${theme.title}"
+        alt="${theme.title || "테마 이미지"}"
       />
 
-      <h2>${theme.title}</h2>
+      <h2>${theme.title || "테마명 없음"}</h2>
 
       <div class="modal-info">
         <p><strong>장르</strong> ${theme.genre || "확인 필요"}</p>
-        <p><strong>추천 인원</strong> ${people.join(", ")}명</p>
+        <p><strong>추천 인원</strong> ${people.length > 0 ? people.join(", ") + "명" : "확인 필요"}</p>
         <p><strong>플레이타임</strong> ${theme.play_time || "확인 필요"}</p>
         <p><strong>가격</strong> ${theme.price || "확인 필요"}</p>
-        <p><strong>매장</strong> ${store.name}</p>
+        <p><strong>매장</strong> ${store.name || "확인 필요"}</p>
       </div>
 
-      <p class="modal-address">${store.address}</p>
+      <p class="modal-address">${store.address || "주소 확인 필요"}</p>
 
       <div class="theme-action-buttons">
         <a href="${kakaoMapUrl}" target="_blank" class="theme-action-btn kakao-route-btn">
@@ -366,9 +365,7 @@ function openThemeModal(theme) {
   });
 
   modal.addEventListener("click", (event) => {
-    if (event.target === modal) {
-      modal.remove();
-    }
+    if (event.target === modal) modal.remove();
   });
 
   if (window.kakao && kakao.maps) {
@@ -380,6 +377,8 @@ function openThemeModal(theme) {
 
       const position = new kakao.maps.LatLng(lat, lng);
       const modalMapContainer = document.getElementById(mapId);
+
+      if (!modalMapContainer) return;
 
       const modalMap = new kakao.maps.Map(modalMapContainer, {
         center: position,
@@ -412,8 +411,8 @@ function renderStores(filteredStores) {
     item.className = "store-item";
 
     item.innerHTML = `
-      <strong class="store-name">${store.name}</strong>
-      <p>${store.address}</p>
+      <strong class="store-name">${store.name || "매장명 없음"}</strong>
+      <p>${store.address || "주소 확인 필요"}</p>
     `;
 
     item.addEventListener("click", () => {
@@ -490,17 +489,11 @@ function recommendTheme() {
       ? normalizeText(theme.genre).includes(normalizeText(selectedGenre))
       : true;
 
-    return (
-      areaMatched &&
-      people.includes(selectedPeople) &&
-      genreMatched
-    );
+    return areaMatched && people.includes(selectedPeople) && genreMatched;
   });
 
   if (matchedThemes.length === 0) {
-    resultBox.innerHTML = `
-      조건에 맞는 테마가 없습니다.
-    `;
+    resultBox.innerHTML = "조건에 맞는 테마가 없습니다.";
     return;
   }
 
@@ -515,8 +508,8 @@ function recommendTheme() {
     item.className = "recommend-result-item";
 
     item.innerHTML = `
-      <strong>${theme.title}</strong>
-      <p>${store.name} · ${store.area} · ${theme.genre}</p>
+      <strong>${theme.title || "테마명 없음"}</strong>
+      <p>${store?.name || "매장명 없음"} · ${store?.area || "지역 확인 필요"} · ${theme.genre || "장르 확인 필요"}</p>
     `;
 
     item.addEventListener("click", () => {
